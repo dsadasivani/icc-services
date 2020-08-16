@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="bc33bb7f-6695-41d7-ba07-2a0f29c5d064" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="importAutomatically" value="true" />
+      </MavenImportingSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1g8uI0KLoRBSIso3jorlHl5mwyt" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/java/com/nme/core" />
+    <property name="settings.editor.selected.configurable" value="reference.projectsettings.compiler.annotationProcessors" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\git-repos\icc-services\src\main\java\com\nme\core" />
+      <recent name="D:\git-repos\icc-services\src\main\java" />
+      <recent name="D:\git-repos\icc-services\src\main\java\com\nme\core\controller" />
+      <recent name="D:\git-repos\icc-services\src\main\resources" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="icc-app" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="com.nme.core.IccServicesAppApplication" />
+      <module name="icc-services" />
+      <shortenClasspath name="MANIFEST" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bc33bb7f-6695-41d7-ba07-2a0f29c5d064" name="Default Changelist" comment="" />
+      <created>1597508457027</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1597508457027</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="137" y="24" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1597509647047">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state x="137" y="24" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1366.738@0.0.1366.738" timestamp="1597509647047" />
+    <state x="412" y="153" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1597509634861">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state x="412" y="153" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.1366.738@0.0.1366.738" timestamp="1597509634861" />
+    <state width="1323" height="182" key="GridCell.Tab.0.bottom" timestamp="1597554696784">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state width="1323" height="182" key="GridCell.Tab.0.bottom/0.0.1366.738@0.0.1366.738" timestamp="1597554696784" />
+    <state width="1323" height="182" key="GridCell.Tab.0.center" timestamp="1597554696784">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state width="1323" height="182" key="GridCell.Tab.0.center/0.0.1366.738@0.0.1366.738" timestamp="1597554696784" />
+    <state width="1323" height="182" key="GridCell.Tab.0.left" timestamp="1597554696784">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state width="1323" height="182" key="GridCell.Tab.0.left/0.0.1366.738@0.0.1366.738" timestamp="1597554696784" />
+    <state width="1323" height="182" key="GridCell.Tab.0.right" timestamp="1597554696784">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state width="1323" height="182" key="GridCell.Tab.0.right/0.0.1366.738@0.0.1366.738" timestamp="1597554696784" />
+    <state x="184" y="11" key="SettingsEditor" timestamp="1597509595240">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state x="184" y="11" key="SettingsEditor/0.0.1366.738@0.0.1366.738" timestamp="1597509595240" />
+    <state x="379" y="193" key="com.intellij.ide.util.TipDialog" timestamp="1597509550640">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state x="379" y="193" key="com.intellij.ide.util.TipDialog/0.0.1366.738@0.0.1366.738" timestamp="1597509550640" />
+    <state x="65" y="64" key="new project wizard" timestamp="1597555131765">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state x="65" y="64" key="new project wizard/0.0.1366.738@0.0.1366.738" timestamp="1597555131765" />
+  </component>
+</project>
