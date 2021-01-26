@@ -1,11 +1,14 @@
 package com.nme.core.services;
 
+import com.nme.core.entity.OrderDiscount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nme.core.dto.OrderDetailsDTO;
 import com.nme.core.entity.OrderTaxDetails;
 import com.nme.core.repo.OrderTaxDetailsRepository;
+
+import java.util.List;
 
 @Service
 public class OrderTaxDetailsService {
@@ -28,6 +31,9 @@ public class OrderTaxDetailsService {
 		
 		repo.save(obj);
 	}
-	
+
+	public List<OrderTaxDetails> getOrderTaxDetailsByOrderId(long orderId){
+		return repo.findByOrderId(orderId);
+	}
 	
 }

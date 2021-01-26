@@ -7,6 +7,8 @@ import com.nme.core.dto.OrderDetailsDTO;
 import com.nme.core.entity.CustomerDetails;
 import com.nme.core.repo.CustomerDetailsRepository;
 
+import java.util.List;
+
 @Service
 public class CustomerDetailsService {
 
@@ -22,6 +24,10 @@ public class CustomerDetailsService {
 		obj.setPhoneNumber(dto.getPhoneNumber());
 		
 		return repo.save(obj);
+	}
+
+	public List<CustomerDetails> getConsumerDetailsById(long id){
+		return repo.findByConsumerId(id);
 	}
 	
 	

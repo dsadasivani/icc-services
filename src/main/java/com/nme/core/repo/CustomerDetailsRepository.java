@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.nme.core.entity.CustomerDetails;
 
-public interface CustomerDetailsRepository extends JpaRepository<CustomerDetails, Integer>{
+import java.util.List;
 
+public interface CustomerDetailsRepository extends JpaRepository<CustomerDetails, Integer>{
+    List<CustomerDetails> findByConsumerId(long consumerId);
 }

@@ -7,6 +7,8 @@ import com.nme.core.dto.OrderDetailsDTO;
 import com.nme.core.entity.OrderDiscount;
 import com.nme.core.repo.OrderDiscountRepository;
 
+import java.util.List;
+
 @Service
 public class OrderDiscountService {
 
@@ -31,5 +33,7 @@ public class OrderDiscountService {
 		repo.save(obj);
 	}
 	
-	
+	public List<OrderDiscount> getOrderDiscountDetailsByOrderId(long orderId){
+		return repo.findByOrderId(orderId);
+	}
 }

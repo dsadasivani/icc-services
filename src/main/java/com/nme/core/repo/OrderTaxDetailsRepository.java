@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.nme.core.entity.OrderTaxDetails;
 
-public interface OrderTaxDetailsRepository extends JpaRepository<OrderTaxDetails, Long>{
+import java.util.List;
 
+public interface OrderTaxDetailsRepository extends JpaRepository<OrderTaxDetails, Long>{
+    List<OrderTaxDetails> findByOrderId(long orderId);
 }

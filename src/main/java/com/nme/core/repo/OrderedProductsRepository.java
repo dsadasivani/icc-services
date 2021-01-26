@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.nme.core.entity.OrderedProducts;
 
-public interface OrderedProductsRepository extends JpaRepository<OrderedProducts, Long>{
+import java.util.List;
 
+public interface OrderedProductsRepository extends JpaRepository<OrderedProducts, Long>{
+    List<OrderedProducts> findByOrderId(long orderId);
 }

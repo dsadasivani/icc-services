@@ -1,6 +1,7 @@
 package com.nme.core.services;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class OrderedProductsService {
 			}
 		}
 	}
-	
+
+	public List<OrderedProducts> getOrderedProductsByOrderId(long orderId){
+		return repo.findByOrderId(orderId);
+	}
 	
 }

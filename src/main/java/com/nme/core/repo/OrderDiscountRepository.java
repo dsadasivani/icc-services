@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.nme.core.entity.OrderDiscount;
 
-public interface OrderDiscountRepository extends JpaRepository<OrderDiscount, Long> {
+import java.util.List;
 
+public interface OrderDiscountRepository extends JpaRepository<OrderDiscount, Long> {
+    List<OrderDiscount> findByOrderId(long orderId);
 }

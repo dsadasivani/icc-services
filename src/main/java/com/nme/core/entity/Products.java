@@ -2,6 +2,7 @@ package com.nme.core.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 @Entity
+@Table(name = "ICC_PRODUCTS")
 public class Products {
 	@Id
 	private long prodId;
