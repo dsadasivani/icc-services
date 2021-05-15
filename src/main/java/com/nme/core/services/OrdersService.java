@@ -6,6 +6,9 @@ import com.nme.core.itext.GenerateInvoicePDF;
 import com.nme.core.model.ResponseOrders;
 import com.nme.core.model.Result;
 import com.nme.core.repo.OrdersRepository;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,8 @@ import java.util.*;
 
 @Service
 public class OrdersService {
+
+    private static final Logger logger = LogManager.getLogger(OrdersService.class);
 
     @Autowired
     private OrdersRepository repo;
@@ -134,10 +139,10 @@ public class OrdersService {
                 ResponseEntity<Result> result = createOrder(order);
                 if (HttpStatus.OK.toString().equalsIgnoreCase(result.getStatusCode().toString())) {
                     ++successOrderCounter;
-                    System.out.println(result.getBody().getData().toString());
+                    logger.log(Level.INFO,result.getBody().getData().toString());
                 } else {
                     ++failedOrderCounter;
-                    System.out.println(result.getBody().getData().toString());
+                    logger.log(Level.INFO,result.getBody().getData().toString());
                 }
             }
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("bulk.create.completed").data("Total successful orders : " + successOrderCounter + " & failure orders : " + failedOrderCounter).build(), HttpStatus.OK);
@@ -155,7 +160,6 @@ public class OrdersService {
             orderTaxDetailsService.saveOrderTaxDetails(orderDto, orderObject.getOrderId());
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("order.create.success").data("Order Created successfully with order ID : " + orderObject.getOrderId()).build(), HttpStatus.OK);
         } catch (Exception e) {
-            // TODO: handle exception
             e.printStackTrace();
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("order.create.failure").exceptionMessage(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -15,29 +15,29 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.property.VerticalAlignment;
 import com.nme.core.model.ResponseOrders;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 public class GenerateInvoicePDF {
 
+	private static final Logger logger = LogManager.getLogger(GenerateInvoicePDF.class);
 	private long totalAmount = 0;
 
-	public String createPdf(ResponseOrders responseOrders) throws IOException, FileNotFoundException, MalformedURLException, ParseException {
-		final String DEST = String.format("results/INDO CONSTRUCTION CHEM - INVOICE_%s.pdf",responseOrders.getOrderId());
+	public String createPdf(ResponseOrders responseOrders) throws IOException, FileNotFoundException, MalformedURLException {
+		final String DEST = String.format("results/INVOICE_%s.pdf",responseOrders.getOrderId());
 		File file = new File(DEST);
         file.getParentFile().mkdirs();
-//		long totalAmount = 0;
         PdfWriter writer = new PdfWriter(DEST);
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
@@ -101,20 +101,20 @@ public class GenerateInvoicePDF {
 				"Phone No\t: "+responseOrders.getPhoneNumber());
 		
 		for(String element : list) {
-			Cell ConsigneeAddrCell = new Cell();
+			Cell consigneeAddrCell = new Cell();
 			if(element.trim().length() != 0) {
-				ConsigneeAddrCell.add(new Paragraph(element));
-				ConsigneeAddrCell.setPadding(0f);
+				consigneeAddrCell.add(new Paragraph(element));
+				consigneeAddrCell.setPadding(0f);
 			}
 			else
-				ConsigneeAddrCell.setPadding(7f);	
-			ConsigneeAddrCell.setBorderTop(Border.NO_BORDER);
-			ConsigneeAddrCell.setBorderLeft(Border.NO_BORDER);
-			ConsigneeAddrCell.setBorderRight(Border.NO_BORDER);
-			ConsigneeAddrCell.setBorderBottom(new SolidBorder(0.5f));
-			ConsigneeAddrCell.setFontSize(7f);
+				consigneeAddrCell.setPadding(7f);
+			consigneeAddrCell.setBorderTop(Border.NO_BORDER);
+			consigneeAddrCell.setBorderLeft(Border.NO_BORDER);
+			consigneeAddrCell.setBorderRight(Border.NO_BORDER);
+			consigneeAddrCell.setBorderBottom(new SolidBorder(0.5f));
+			consigneeAddrCell.setFontSize(7f);
 
-			innerConTable.addCell(ConsigneeAddrCell);
+			innerConTable.addCell(consigneeAddrCell);
 		}
 		Cell addrCell = new Cell();
 		addrCell.add(innerConTable);
@@ -147,7 +147,6 @@ public class GenerateInvoicePDF {
 	public void addHeaderImage(Document layoutDocument) throws MalformedURLException {
 		Image image = new Image(ImageDataFactory.create("src/main/resources/HeaderImage.png")).setWidth(518f);
 		layoutDocument.add(new Paragraph().add(image).setBorder(new SolidBorder(1f)));
-		System.out.println(image.getImageHeight() + " , "+ image.getImageWidth());
 	}
 
 	public Paragraph addCompanyAddress()
@@ -165,7 +164,6 @@ public class GenerateInvoicePDF {
 	public void addOrderDetails(Document layoutDocument, List<OrderPOJO> articleList)
 	{
 	    Table table = new Table(UnitValue.createPointArray(new float[]{70f, 60f, 110f, 60f, 110f,60f,60f}));
-	    System.out.println("table padding : "+ table.getPaddingTop());
 	    table.setFontSize(7f);
 	    table.addCell(new Paragraph("SALES PERSON").setBold().setTextAlignment(TextAlignment.CENTER));
 	    table.addCell(new Paragraph("P.O. NUMBER").setBold().setTextAlignment(TextAlignment.CENTER));
@@ -233,7 +231,7 @@ public class GenerateInvoicePDF {
 		 table.addCell(new Paragraph(tdAmount).setTextAlignment(TextAlignment.CENTER));
 		 table.addCell(new Paragraph());
 		 table.addCell(new Paragraph());
-		 table.addCell(new Paragraph(String.format("%.2f", (double)remainingTotalafterTd)).setTextAlignment(TextAlignment.CENTER));
+		 table.addCell(new Paragraph(String.format("%.2f", remainingTotalafterTd)).setTextAlignment(TextAlignment.CENTER));
 		 double cd = articleList.getDiscount().getCashDiscount();
 		 String cdAmount = Util.calculatePercentageAmount(remainingTotalafterTd, cd);
 		 double remainingTotalafterCd = remainingTotalafterTd - Double.parseDouble(cdAmount);
@@ -342,7 +340,7 @@ public class GenerateInvoicePDF {
 	public String getFormattedDate(Timestamp ts, boolean timeRequired) {
 		String pattern = timeRequired ? "dd-MMM-yyyy hh:mm aa" : "dd/MM/yyyy";
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-		System.out.println(simpleDateFormat.format(ts));
+		logger.debug("Timestamp: {}",ts);
 		return simpleDateFormat.format(ts);
 	}
 }
