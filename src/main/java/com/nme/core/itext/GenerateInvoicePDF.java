@@ -183,7 +183,10 @@ public class GenerateInvoicePDF {
 	        table.addCell(new Paragraph(a.getSentVia()).setTextAlignment(TextAlignment.CENTER));
 	        table.addCell(new Paragraph(a.getFobPoint()).setTextAlignment(TextAlignment.CENTER));
 	        table.addCell(new Paragraph(a.getTerms()).setTextAlignment(TextAlignment.CENTER));
-	        table.addCell(new Paragraph(a.getDueDate()).setTextAlignment(TextAlignment.CENTER));
+			if(a.getDueDate() != null)
+				table.addCell(new Paragraph(a.getDueDate()).setTextAlignment(TextAlignment.CENTER));
+			else
+				table.addCell(new Paragraph());
 	    }
 
 	    layoutDocument.add(table);
