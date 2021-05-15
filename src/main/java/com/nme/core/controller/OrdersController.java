@@ -28,10 +28,20 @@ public class OrdersController {
 	public List<ResponseOrders> getAllOrders() {
 		return service.getOrders();
 	}
-	
+
+	@GetMapping(value = "/getOrderById/{id}")
+	public ResponseOrders getOrderById(@PathVariable(value = "id") long orderId) {
+		return service.getOrderDetailsById(orderId);
+	}
+
 	@PostMapping(value = "/createOrder")
 	public ResponseEntity<Result> createOrderDTO(@RequestBody OrderDetailsDTO object) {
 		System.out.println(object.toString());
 			return service.createOrder(object);
+	}
+
+	@GetMapping(value = "/generateInvoiceById/{id}")
+	public ResponseEntity<Result> generateInvoiceById(@PathVariable(value = "id") long orderId) {
+		return service.generateInvoiceById(orderId);
 	}
 }

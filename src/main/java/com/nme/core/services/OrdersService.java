@@ -1,12 +1,13 @@
 package com.nme.core.services;
 
+import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.util.*;
 
 import com.nme.core.entity.*;
+import com.nme.core.itext.GenerateInvoicePDF;
 import com.nme.core.model.ResponseOrders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,9 @@ public class OrdersService {
 
 	@Autowired
 	private ProductsService productsService;
+
+	@Autowired
+	private GenerateInvoicePDF generateInvoicePDF;
 	
 	public List<ResponseOrders> getOrders(){
 		List<Orders> orders = new ArrayList<>();
@@ -46,6 +50,31 @@ public class OrdersService {
 			responseOrders.add(generateResponseOrderObject(order));
 		}
 		return responseOrders;
+	}
+
+	public ResponseOrders getOrderDetailsById(long orderId){
+		Optional<Orders> order = repo.findById(orderId);
+		ResponseOrders response = null;
+		if(order.isPresent()){
+			response = generateResponseOrderObject(order.get());
+		}
+		return response;
+	}
+
+	public ResponseEntity<Result> generateInvoiceById(long orderId){
+		Optional<Orders> order = repo.findById(orderId);
+		ResponseOrders response = null;
+		if(order.isPresent()){
+			response = generateResponseOrderObject(order.get());
+			try {
+				generateInvoicePDF.createPdf(response);
+				return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("document.generate.success").data("Invoice generated successfully with order ID : "+response.getOrderId()).build(),HttpStatus.OK);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("document.generate.failure").exceptionMessage(e.getMessage()).build(),HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+		return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("document.generate.failure").data("Details not found for order ID : "+response.getOrderId()).build(),HttpStatus.OK);
 	}
 
 	private ResponseOrders generateResponseOrderObject(Orders order) {
