@@ -17,6 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <itext.version>7.1.11</itext.version>
         <log4j.version>2.11.2</log4j.version>
+        <postgresql.version>42.2.19</postgresql.version>
     </properties>
 
     <dependencies>
@@ -70,6 +71,13 @@
             <artifactId>log4j-core</artifactId>
             <version>${log4j.version}</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
