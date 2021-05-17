@@ -35,7 +35,7 @@ public class GenerateInvoicePDF {
 	private long totalAmount = 0;
 
 	public String createPdf(ResponseOrders responseOrders) throws IOException, FileNotFoundException, MalformedURLException {
-		final String DEST = String.format("results/INVOICE_%s.pdf",responseOrders.getOrderId());
+		final String DEST = String.format("src/results/INVOICE_%s.pdf",responseOrders.getOrderId());
 		File file = new File(DEST);
         file.getParentFile().mkdirs();
         PdfWriter writer = new PdfWriter(DEST);
