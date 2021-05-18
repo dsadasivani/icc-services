@@ -101,7 +101,12 @@ public class GenerateInvoicePDF {
 		byte[] bytes = Files.readAllBytes(Paths.get(fileToRead.toURI()));
 		storage.create(blobInfo, bytes);
 		logger.info("File created in {} GCP bucket successfully.",blobInfo.getBucket());
-        return String.format("%s created in google cloud storage under %s bucket", fileName, blobInfo.getBucket());
+		if (fileToRead.delete()) {
+			logger.info("File deleted from local directory");
+		} else {
+			logger.error("Error while deleting file - {}", localFilePath);
+		}
+		return String.format("%s created in google cloud storage under %s bucket", fileName, blobInfo.getBucket());
     }
 
 	private void setConsigneeDetails(Document document, ResponseOrders responseOrders) {
