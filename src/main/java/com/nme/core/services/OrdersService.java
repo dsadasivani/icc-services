@@ -68,8 +68,8 @@ public class OrdersService {
         if (order.isPresent()) {
             response = generateResponseOrderObject(order.get());
             try {
-                generateInvoicePDF.createPdf(response);
-                return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("document.generate.success").data("Invoice generated successfully with order ID : " + response.getOrderId()).build(), HttpStatus.OK);
+                String responseMsg = generateInvoicePDF.createPdf(response);
+                return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("document.generate.success").data(responseMsg + " for order ID : " + response.getOrderId()).build(), HttpStatus.OK);
             } catch (Exception e) {
                 e.printStackTrace();
                 return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("document.generate.failure").exceptionMessage(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);

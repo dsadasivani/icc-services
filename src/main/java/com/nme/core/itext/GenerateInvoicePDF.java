@@ -93,13 +93,15 @@ public class GenerateInvoicePDF {
         document.close();
 
         //PDF is ready. Now write it to Google Cloud Storage
-		BlobId blobId = BlobId.of("icc-dev", "invoice_"+responseOrders.getOrderId()+".pdf");
+		String fileName = "invoice_"+responseOrders.getOrderId()+".pdf";
+		String bucketName = env.getProperty("gcp.bucket");
+		BlobId blobId = BlobId.of(bucketName, fileName);
 		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
 		File fileToRead = new File(localFilePath);
 		byte[] bytes = Files.readAllBytes(Paths.get(fileToRead.toURI()));
 		storage.create(blobInfo, bytes);
 		logger.info("File created in {} GCP bucket successfully.",blobInfo.getBucket());
-        return "SUCCESS";
+        return String.format("%s created in google cloud storage under %s bucket", fileName, blobInfo.getBucket());
     }
 
 	private void setConsigneeDetails(Document document, ResponseOrders responseOrders) {
