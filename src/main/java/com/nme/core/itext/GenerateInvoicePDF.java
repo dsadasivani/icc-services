@@ -1,5 +1,9 @@
 package com.nme.core.itext;
 
+import com.google.api.client.util.Value;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
 import com.itextpdf.io.IOException;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -17,11 +21,18 @@ import com.itextpdf.layout.property.VerticalAlignment;
 import com.nme.core.model.ResponseOrders;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,14 +42,22 @@ import java.util.List;
 @Service
 public class GenerateInvoicePDF {
 
+	@Autowired
+	private Storage storage;
+
+	@Autowired
+	private Environment env;
+
 	private static final Logger logger = LogManager.getLogger(GenerateInvoicePDF.class);
 	private long totalAmount = 0;
 
-	public String createPdf(ResponseOrders responseOrders) throws IOException, FileNotFoundException, MalformedURLException {
-		final String DEST = String.format("/tmp/INVOICE_%s.pdf",responseOrders.getOrderId());
-		File file = new File(DEST);
+	public String createPdf(ResponseOrders responseOrders) throws IOException, java.io.IOException {
+		String inputFile = env.getProperty("pdf.file.location");
+		logger.info("File Location : "+inputFile);
+		final String localFilePath = String.format(inputFile,responseOrders.getOrderId());
+		File file = new File(localFilePath);
         file.getParentFile().mkdirs();
-        PdfWriter writer = new PdfWriter(DEST);
+        PdfWriter writer = new PdfWriter(localFilePath);
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
 
@@ -73,8 +92,16 @@ public class GenerateInvoicePDF {
         addFooter(document);
         document.close();
 
+        //PDF is ready. Now write it to Google Cloud Storage
+		BlobId blobId = BlobId.of("icc-dev", "invoice_"+responseOrders.getOrderId()+".pdf");
+		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+		File fileToRead = new File(localFilePath);
+		byte[] bytes = Files.readAllBytes(Paths.get(fileToRead.toURI()));
+		storage.create(blobInfo, bytes);
+		logger.info("File created in {} GCP bucket successfully.",blobInfo.getBucket());
         return "SUCCESS";
     }
+
 	private void setConsigneeDetails(Document document, ResponseOrders responseOrders) {
 		Table consigneeTable = new Table(UnitValue.createPointArray(new float[]{330f, 190f}));
 		
