@@ -1,6 +1,5 @@
 package com.nme.core.itext;
 
-import com.google.api.client.util.Value;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
@@ -23,13 +22,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -295,7 +290,6 @@ public class GenerateInvoicePDF {
 			 cell2.add(new Paragraph("Grand Total").setBold().setTextAlignment(TextAlignment.CENTER).setFontSize(8f));
 			 table.addCell(cell1);
 			 table.addCell(cell2);
-			 table.addCell(new Paragraph(String.format("%.2f", remainingTotalAfterGst)).setTextAlignment(TextAlignment.CENTER).setBold());
 			 table.addCell(new Paragraph(Util.formatCurrency(String.format("%.2f", remainingTotalAfterGst))).setTextAlignment(TextAlignment.CENTER).setBold());
 		 }
 		 if(articleList.getGst().getIgst() != 0.0d || articleList.getGst().getIgst() != 0) {

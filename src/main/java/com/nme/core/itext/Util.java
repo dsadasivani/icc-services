@@ -6,7 +6,7 @@ import java.util.Locale;
 public class Util {
 	public static String calculatePercentageAmount(double totalAmount, double percentage) {
 		if(percentage == 0)
-			return String.format("%.2f", totalAmount);
+			return String.format("%.2f", percentage);
 		return  String.format("%.2f",(percentage/100) * totalAmount);
 	}
 	
