@@ -18,6 +18,7 @@
         <itext.version>7.1.11</itext.version>
         <log4j.version>2.11.2</log4j.version>
         <postgresql.version>42.2.19</postgresql.version>
+        <gcp.storage.version>1.2.8.RELEASE</gcp.storage.version>
     </properties>
 
     <dependencies>
@@ -81,7 +82,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-gcp-starter-storage</artifactId>
-            <version>1.2.8.RELEASE</version>
+            <version>${gcp.storage.version}</version>
         </dependency>
 
     </dependencies>
