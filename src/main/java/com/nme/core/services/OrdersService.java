@@ -62,20 +62,21 @@ public class OrdersService {
         return response;
     }
 
-    public ResponseEntity<Result> generateInvoiceById(long orderId) {
+    public ResponseEntity<byte[]> generateInvoiceById(long orderId) {
         Optional<Orders> order = repo.findById(orderId);
         ResponseOrders response = null;
+        byte[] fileBytes = new byte[0];
         if (order.isPresent()) {
             response = generateResponseOrderObject(order.get());
             try {
-                String responseMsg = generateInvoicePDF.createPdf(response);
-                return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("document.generate.success").data(responseMsg + " for order ID : " + response.getOrderId()).build(), HttpStatus.OK);
+                fileBytes = generateInvoicePDF.createPdf(response);
+                return ResponseEntity.ok().contentLength(fileBytes.length).body(fileBytes);
             } catch (Exception e) {
                 e.printStackTrace();
-                return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("document.generate.failure").exceptionMessage(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
+                return ResponseEntity.badRequest().contentLength(fileBytes.length).body(fileBytes);
             }
         }
-        return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("document.generate.failure").data("Details not found for order ID : " + response.getOrderId()).build(), HttpStatus.OK);
+        return ResponseEntity.ok().contentLength(fileBytes.length).body(fileBytes);
     }
 
     private ResponseOrders generateResponseOrderObject(Orders order) {

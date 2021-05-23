@@ -1,8 +1,8 @@
 package com.nme.core.controller;
 
-import com.nme.core.entity.Orders;
 import com.nme.core.model.ResponseOrders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,8 +40,9 @@ public class OrdersController {
 			return service.createOrder(object);
 	}
 
-	@GetMapping(value = "/generateInvoiceById/{id}")
-	public ResponseEntity<Result> generateInvoiceById(@PathVariable(value = "id") long orderId) {
+	@GetMapping(value = "/generateInvoiceById/{id}", produces = MediaType.APPLICATION_PDF_VALUE)
+	public @ResponseBody
+	ResponseEntity<byte[]> generateInvoiceById(@PathVariable(value = "id") long orderId) {
 		return service.generateInvoiceById(orderId);
 	}
 }

@@ -18,6 +18,7 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.property.VerticalAlignment;
 import com.nme.core.model.ResponseOrders;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +47,9 @@ public class GenerateInvoicePDF {
 	private static final Logger logger = LogManager.getLogger(GenerateInvoicePDF.class);
 	private long totalAmount = 0;
 
-	public String createPdf(ResponseOrders responseOrders) throws IOException, java.io.IOException {
+	public byte[] createPdf(ResponseOrders responseOrders) throws IOException, java.io.IOException {
 		String inputFile = env.getProperty("pdf.file.location");
+		String fileUploadFlag = env.getProperty("gcp.enable.file.upload");
 		logger.info("File Location : "+inputFile);
 		final String localFilePath = String.format(inputFile,responseOrders.getOrderId());
 		File file = new File(localFilePath);
@@ -87,21 +89,26 @@ public class GenerateInvoicePDF {
         addFooter(document);
         document.close();
 
-        //PDF is ready. Now write it to Google Cloud Storage
-		String fileName = "invoice_"+responseOrders.getOrderId()+".pdf";
-		String bucketName = env.getProperty("gcp.bucket");
-		BlobId blobId = BlobId.of(bucketName, fileName);
-		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
 		File fileToRead = new File(localFilePath);
-		byte[] bytes = Files.readAllBytes(Paths.get(fileToRead.toURI()));
-		storage.create(blobInfo, bytes);
-		logger.info("File created in {} GCP bucket successfully.",blobInfo.getBucket());
+        //PDF is ready. Now write it to Google Cloud Storage
+		if("ON".equals(fileUploadFlag)){
+			String fileName = "invoice_" + responseOrders.getOrderId() + ".pdf";
+			String bucketName = env.getProperty("gcp.bucket");
+			BlobId blobId = BlobId.of(bucketName, fileName);
+			BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+			byte[] bytes = Files.readAllBytes(Paths.get(fileToRead.toURI()));
+			storage.create(blobInfo, bytes);
+			logger.info("File created in {} GCP bucket successfully.", blobInfo.getBucket());
+		}else {
+			logger.info("File upload to Google cloud storage SKIPPED since gcp.enable.file.upload flag is set to : {}",fileUploadFlag);
+		}
+		byte[] bytesArray = FileUtils.readFileToByteArray(fileToRead);
 		if (fileToRead.delete()) {
 			logger.info("File deleted from local directory");
 		} else {
 			logger.error("Error while deleting file - {}", localFilePath);
 		}
-		return String.format("%s created in google cloud storage under %s bucket", fileName, blobInfo.getBucket());
+		return bytesArray;
     }
 
 	private void setConsigneeDetails(Document document, ResponseOrders responseOrders) {
