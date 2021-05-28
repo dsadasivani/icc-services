@@ -50,7 +50,7 @@ public class GenerateInvoicePDF {
 	public byte[] createPdf(ResponseOrders responseOrders) throws IOException, java.io.IOException {
 		String inputFile = env.getProperty("pdf.file.location");
 		String fileUploadFlag = env.getProperty("gcp.enable.file.upload");
-		logger.info("File Location : "+inputFile);
+		logger.info("File Location : {} ", inputFile);
 		final String localFilePath = String.format(inputFile,responseOrders.getOrderId());
 		File file = new File(localFilePath);
         file.getParentFile().mkdirs();
