@@ -10,6 +10,8 @@ import java.util.List;
 @NoArgsConstructor
 public class ResponseOrders {
     private long orderId;
+    private long invoiceNumber;
+    private Timestamp invoiceDate;
     private String salesPersonName;
     private Timestamp orderSentDate;
     private String orderSentVia;

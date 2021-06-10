@@ -26,7 +26,7 @@ public class OrderDiscountService {
 			obj.setTradeDiscount("N");
 		if(dto.getCashDiscount()!= null && dto.getCashDiscount().equalsIgnoreCase("true")) {
 			obj.setCashDiscount("Y");
-			obj.setCashDiscountValue(Long.parseLong(dto.getTradeDiscountValue()));
+			obj.setCashDiscountValue(Long.parseLong(dto.getCashDiscountValue()));
 		}else
 			obj.setCashDiscount("N");
 		

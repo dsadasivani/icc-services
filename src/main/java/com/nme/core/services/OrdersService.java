@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -82,6 +84,8 @@ public class OrdersService {
     private ResponseOrders generateResponseOrderObject(Orders order) {
         ResponseOrders ord = new ResponseOrders();
         ord.setOrderId(order.getOrderId());
+        ord.setInvoiceNumber(order.getInvoiceNumber());
+        ord.setInvoiceDate(order.getInvoiceDate());
         ord.setSalesPersonName(order.getSalesPersonName());
         ord.setOrderSentDate(order.getOrderSentDate());
         ord.setOrderSentVia(order.getOrderSentVia());
@@ -166,8 +170,9 @@ public class OrdersService {
         }
     }
 
-    private Orders saveOrderObject(OrderDetailsDTO orderDto, long customerId) {
+    private Orders saveOrderObject(OrderDetailsDTO orderDto, long customerId) throws ParseException {
         Orders obj = new Orders();
+        obj.setInvoiceNumber(Long.parseLong(orderDto.getInvoiceNumber()));
         obj.setSalesPersonName(orderDto.getSalesPersonName());
         obj.setOrderSentDate(new Timestamp(System.currentTimeMillis()));
         obj.setOrderSentVia((orderDto.getTransport().equalsIgnoreCase("OTHERS")) ? orderDto.getOtherTransport() : orderDto.getTransport());
@@ -176,7 +181,14 @@ public class OrdersService {
         if (orderDto.getTerms().equalsIgnoreCase("Credit"))
             obj.setDueDate(orderDto.getDueDate());
         obj.setConsumerId(customerId);
-
+        if(orderDto.getInvoiceDate() != null && orderDto.getInvoiceDate().length() > 0) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            Date parsedDate = dateFormat.parse(orderDto.getInvoiceDate().concat(" 09:00:00"));
+            Timestamp invoiceDate = new java.sql.Timestamp(parsedDate.getTime());
+            obj.setInvoiceDate(invoiceDate);
+        }else{
+            obj.setInvoiceDate(new Timestamp(System.currentTimeMillis()));
+        }
         return repo.save(obj);
     }
 

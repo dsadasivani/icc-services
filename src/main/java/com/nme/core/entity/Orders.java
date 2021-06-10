@@ -35,6 +35,8 @@ public class Orders {
         }
     )
     private long orderId;
+	private long invoiceNumber;
+	private Timestamp invoiceDate;
 	private long consumerId;
 	private String salesPersonName;
 	private Timestamp orderSentDate;

@@ -51,7 +51,7 @@ public class GenerateInvoicePDF {
 		String inputFile = env.getProperty("pdf.file.location");
 		String fileUploadFlag = env.getProperty("gcp.enable.file.upload");
 		logger.info("File Location : {} ", inputFile);
-		final String localFilePath = String.format(inputFile,responseOrders.getOrderId());
+		final String localFilePath = String.format(inputFile,responseOrders.getInvoiceNumber());
 		File file = new File(localFilePath);
         file.getParentFile().mkdirs();
         PdfWriter writer = new PdfWriter(localFilePath);
@@ -68,7 +68,7 @@ public class GenerateInvoicePDF {
         document.add(new Paragraph("Order Details:").setBold().setFontSize(7f));
         addOrderDetails(document, Arrays.asList(
         		new OrderPOJO(responseOrders.getSalesPersonName(), "",
-						getFormattedDate(responseOrders.getOrderSentDate(), true),
+						getFormattedDate(responseOrders.getInvoiceDate(), true),
 						responseOrders.getOrderSentVia(), responseOrders.getFobPoint(), responseOrders.getTerms().toUpperCase(), responseOrders.getDueDate())
         		));
         document.add(new Paragraph("Invoice Details:").setBold().setFontSize(7f));
@@ -92,7 +92,7 @@ public class GenerateInvoicePDF {
 		File fileToRead = new File(localFilePath);
         //PDF is ready. Now write it to Google Cloud Storage
 		if("ON".equals(fileUploadFlag)){
-			String fileName = "invoice_" + responseOrders.getOrderId() + ".pdf";
+			String fileName = "invoice_" + responseOrders.getInvoiceNumber() + ".pdf";
 			String bucketName = env.getProperty("gcp.bucket");
 			BlobId blobId = BlobId.of(bucketName, fileName);
 			BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
@@ -108,6 +108,7 @@ public class GenerateInvoicePDF {
 		} else {
 			logger.error("Error while deleting file - {}", localFilePath);
 		}
+		totalAmount = 0;
 		return bytesArray;
     }
 
@@ -131,6 +132,7 @@ public class GenerateInvoicePDF {
 		
 		Table innerConTable = new Table(UnitValue.createPointArray(new float[]{200f}));
 		List<String> list = Arrays.asList(
+				responseOrders.getCompanyName(),
 				responseOrders.getAddress(),
 				responseOrders.getAddress2(),
 				"GSTIN \t\t: "+responseOrders.getGstin(),
@@ -164,9 +166,9 @@ public class GenerateInvoicePDF {
 		Table invoiceTable = new Table(UnitValue.createPointArray(new float[]{60f, 60f}));
 		invoiceTable.setHorizontalAlignment(HorizontalAlignment.RIGHT);
 	    invoiceTable.addCell("INVOICE No.");
-	    invoiceTable.addCell(responseOrders.getOrderId()+"");
+	    invoiceTable.addCell(responseOrders.getInvoiceNumber()+"");
 	    invoiceTable.addCell("DATE");
-	    invoiceTable.addCell(getFormattedDate(responseOrders.getOrderSentDate(),false));
+	    invoiceTable.addCell(getFormattedDate(responseOrders.getInvoiceDate(),false));
         //Add invisible table
         Table addressTable = new Table(UnitValue.createPointArray(new float[]{375f, 200f}));
 	    Cell cell1 = new Cell();
@@ -251,6 +253,9 @@ public class GenerateInvoicePDF {
 	}
 	public void addDiscountAndGstDetails(Document layoutDocument, DiscountsAndGstPOJO articleList)
 	{
+		 double remainingTotalafterCd = 0;
+		 double remainingTotalafterTd = 0;
+		 double remainingTotalAfterGst = 0;
 		 Table table = new Table(UnitValue.createPointArray(new float[]{80f, 110f, 70f}));
 		 table.setFontSize(7f);
 		 table.setHorizontalAlignment(HorizontalAlignment.RIGHT);
@@ -258,27 +263,33 @@ public class GenerateInvoicePDF {
 		 table.addCell(new Paragraph("PERCENTAGE").setBold().setTextAlignment(TextAlignment.CENTER));
 		 table.addCell(new Paragraph("DESCRIPTION").setBold().setTextAlignment(TextAlignment.CENTER));
 		 table.addCell(new Paragraph("AMOUNT").setBold().setTextAlignment(TextAlignment.CENTER));
-		 
-		 double td = articleList.getDiscount().getTradeDiscount();
-		 String tdAmount = Util.calculatePercentageAmount(totalAmount, td);
-		 double remainingTotalafterTd = totalAmount - Double.parseDouble(tdAmount);
-		 table.addCell(new Paragraph("Less "+(int)td+"%").setTextAlignment(TextAlignment.CENTER));
-		 table.addCell(new Paragraph("Trade Discount").setTextAlignment(TextAlignment.CENTER));
-		 table.addCell(new Paragraph(tdAmount).setTextAlignment(TextAlignment.CENTER));
-		 table.addCell(new Paragraph());
-		 table.addCell(new Paragraph());
-		 table.addCell(new Paragraph(String.format("%.2f", remainingTotalafterTd)).setTextAlignment(TextAlignment.CENTER));
-		 double cd = articleList.getDiscount().getCashDiscount();
-		 String cdAmount = Util.calculatePercentageAmount(remainingTotalafterTd, cd);
-		 double remainingTotalafterCd = remainingTotalafterTd - Double.parseDouble(cdAmount);
-		 table.addCell(new Paragraph("Less "+(int)cd+"%").setTextAlignment(TextAlignment.CENTER));
-		 table.addCell(new Paragraph("Cash Discount").setTextAlignment(TextAlignment.CENTER));
-		 table.addCell(new Paragraph(cdAmount).setTextAlignment(TextAlignment.CENTER));
-		 table.addCell(new Paragraph());
-		 table.addCell(new Paragraph());
-		 table.addCell(new Paragraph(String.format("%.2f", remainingTotalafterCd)).setTextAlignment(TextAlignment.CENTER));
-		 
-		 double remainingTotalAfterGst = 0;
+
+		if(articleList.getDiscount().getTradeDiscount() != 0.0d && articleList.getDiscount().getTradeDiscount() != 0){
+			double td = articleList.getDiscount().getTradeDiscount();
+			String tdAmount = Util.calculatePercentageAmount(totalAmount, td);
+			remainingTotalafterTd = totalAmount - Double.parseDouble(tdAmount);
+			table.addCell(new Paragraph("Less " + (int) td + "%").setTextAlignment(TextAlignment.CENTER));
+			table.addCell(new Paragraph("Trade Discount").setTextAlignment(TextAlignment.CENTER));
+			table.addCell(new Paragraph(tdAmount).setTextAlignment(TextAlignment.CENTER));
+			table.addCell(new Paragraph());
+			table.addCell(new Paragraph());
+			table.addCell(new Paragraph(String.format("%.2f", remainingTotalafterTd)).setTextAlignment(TextAlignment.CENTER));
+		}else{
+			remainingTotalafterTd = totalAmount;
+		}
+		if(articleList.getDiscount().getCashDiscount() != 0.0d && articleList.getDiscount().getCashDiscount() != 0){
+			double cd = articleList.getDiscount().getCashDiscount();
+			String cdAmount = Util.calculatePercentageAmount(remainingTotalafterTd, cd);
+			remainingTotalafterCd = remainingTotalafterTd - Double.parseDouble(cdAmount);
+			table.addCell(new Paragraph("Less " + (int) cd + "%").setTextAlignment(TextAlignment.CENTER));
+			table.addCell(new Paragraph("Cash Discount").setTextAlignment(TextAlignment.CENTER));
+			table.addCell(new Paragraph(cdAmount).setTextAlignment(TextAlignment.CENTER));
+			table.addCell(new Paragraph());
+			table.addCell(new Paragraph());
+			table.addCell(new Paragraph(String.format("%.2f", remainingTotalafterCd)).setTextAlignment(TextAlignment.CENTER));
+		}else{
+			remainingTotalafterCd = remainingTotalafterTd;
+		}
 		 
 		 if(articleList.getGst().getCsGst() != 0.0d || articleList.getGst().getCsGst() != 0) {
 			 double csGstPercentage = articleList.getGst().getCsGst();
@@ -286,10 +297,10 @@ public class GenerateInvoicePDF {
 			 remainingTotalAfterGst = remainingTotalafterCd + Double.parseDouble(csGstAmount);
 			 table.addCell(new Paragraph());
 			 table.addCell(new Paragraph("CGST "+(int)csGstPercentage/2+"%").setTextAlignment(TextAlignment.CENTER));
-			 table.addCell(new Paragraph(Double.parseDouble(csGstAmount)/2+"").setTextAlignment(TextAlignment.CENTER));
+			 table.addCell(new Paragraph(String.format("%.2f", Double.parseDouble(csGstAmount)/2)).setTextAlignment(TextAlignment.CENTER));
 			 table.addCell(new Paragraph());
 			 table.addCell(new Paragraph("SGST "+(int)csGstPercentage/2+"%").setTextAlignment(TextAlignment.CENTER));
-			 table.addCell(new Paragraph(Double.parseDouble(csGstAmount)/2+"").setTextAlignment(TextAlignment.CENTER));
+			 table.addCell(new Paragraph(String.format("%.2f", Double.parseDouble(csGstAmount)/2)).setTextAlignment(TextAlignment.CENTER));
 			 Cell cell1 = new Cell();
 			 cell1.setBorderRight(Border.NO_BORDER);
 			 Cell cell2 = new Cell();

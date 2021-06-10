@@ -10,7 +10,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class OrderDetailsDTO {
-	
+	private String invoiceNumber;
+	private String invoiceDate;
 	private String companyName;
 	private String address;
 	private String address2;
