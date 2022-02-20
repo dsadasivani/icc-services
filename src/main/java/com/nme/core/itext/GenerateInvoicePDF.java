@@ -51,6 +51,7 @@ public class GenerateInvoicePDF {
 		String inputFile = env.getProperty("pdf.file.location");
 		String fileUploadFlag = env.getProperty("gcp.enable.file.upload");
 		logger.info("File Location : {} ", inputFile);
+		assert inputFile != null;
 		final String localFilePath = String.format(inputFile,responseOrders.getInvoiceNumber());
 		File file = new File(localFilePath);
         file.getParentFile().mkdirs();
@@ -66,11 +67,11 @@ public class GenerateInvoicePDF {
         
         document.add(new Paragraph());
         document.add(new Paragraph("Order Details:").setBold().setFontSize(7f));
-        addOrderDetails(document, Arrays.asList(
-        		new OrderPOJO(responseOrders.getSalesPersonName(), "",
+        addOrderDetails(document, List.of(
+				new OrderPOJO(responseOrders.getSalesPersonName(), "",
 						getFormattedDate(responseOrders.getInvoiceDate(), true),
 						responseOrders.getOrderSentVia(), responseOrders.getFobPoint(), responseOrders.getTerms().toUpperCase(), responseOrders.getDueDate())
-        		));
+		));
         document.add(new Paragraph("Invoice Details:").setBold().setFontSize(7f));
 		List<InvoicePOJO> articleList = new ArrayList<>();
 		for(ResponseOrders.Product product : responseOrders.getProduct()){

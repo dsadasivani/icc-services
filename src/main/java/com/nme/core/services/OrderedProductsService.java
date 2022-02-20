@@ -3,6 +3,7 @@ package com.nme.core.services;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class OrderedProductsService {
 		mapObj.put("product1", dto.getProduct1());
 		mapObj.put("product2", dto.getProduct2());
 		mapObj.put("product3", dto.getProduct3());
-		for(Map.Entry<String, ProductsDto> entry : mapObj.entrySet()) {
+		for(Entry<String, ProductsDto> entry : mapObj.entrySet()) {
 			if(entry.getValue().getProductSelected() != null && entry.getValue().getProductSelected().equals("true")) {
 				OrderedProducts obj = new OrderedProducts();
 				obj.setOrderId(orderId);

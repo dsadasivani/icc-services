@@ -1,6 +1,9 @@
 package com.nme.core.controller;
 
 import com.nme.core.model.ResponseOrders;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,7 @@ import java.util.List;
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class OrdersController {
+	private static final Logger logger = LogManager.getLogger(OrdersController.class);
 	
 	@Autowired
 	private OrdersService service;
@@ -36,8 +40,8 @@ public class OrdersController {
 
 	@PostMapping(value = "/createOrder")
 	public ResponseEntity<Result> createOrderDTO(@RequestBody OrderDetailsDTO object) {
-		System.out.println(object.toString());
-			return service.createOrder(object);
+		logger.log(Level.INFO, object.toString());
+		return service.createOrder(object);
 	}
 
 	@GetMapping(value = "/generateInvoiceById/{id}", produces = MediaType.APPLICATION_PDF_VALUE)

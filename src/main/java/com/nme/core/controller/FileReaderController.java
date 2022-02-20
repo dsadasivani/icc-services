@@ -3,10 +3,10 @@ package com.nme.core.controller;
 import com.google.cloud.ReadChannel;
 import com.google.cloud.storage.Storage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 @RestController
@@ -15,8 +15,8 @@ public class FileReaderController {
     @Autowired
     private Storage storage;
 
-    @RequestMapping(path = { "/hello" }, method = { RequestMethod.GET })
-    public Message readFromFile() throws Exception {
+    @GetMapping(path = { "/hello" })
+    public Message readFromFile() throws IOException {
 
         StringBuilder sb = new StringBuilder();
 

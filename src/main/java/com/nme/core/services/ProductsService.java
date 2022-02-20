@@ -15,8 +15,6 @@ public class ProductsService {
     private ProductsRepository repo;
 
     public List<Products> getProductsDetails() {
-        List<Products> products = new ArrayList<>();
-        products.addAll(repo.findAll());
-        return  products;
+        return new ArrayList<>(repo.findAll());
     }
 }

@@ -19,7 +19,6 @@ import lombok.ToString;
 public class CustomerDetails {
 	
 	@Id
-//	@GeneratedValue(strategy = GenerationType.AUTO)
 	@GeneratedValue(generator = "cust-sequence-generator")
     @GenericGenerator(
       name = "cust-sequence-generator",

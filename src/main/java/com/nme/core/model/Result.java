@@ -12,9 +12,9 @@ import lombok.ToString;
 @Data
 @Builder
 @ToString
-public class Result<T> {
+public class Result {
 	private int resultCode;
 	private String subCode;
-	private T data;
+	private String data;
 	private String exceptionMessage;
 }

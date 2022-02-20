@@ -46,9 +46,8 @@ public class OrdersService {
     private GenerateInvoicePDF generateInvoicePDF;
 
     public List<ResponseOrders> getOrders() {
-        List<Orders> orders = new ArrayList<>();
         List<ResponseOrders> responseOrders = new ArrayList<>();
-        repo.findAll().forEach(orders::add);
+        List<Orders> orders = new ArrayList<>(repo.findAll());
         for (Orders order : orders) {
             responseOrders.add(generateResponseOrderObject(order));
         }
@@ -66,7 +65,7 @@ public class OrdersService {
 
     public ResponseEntity<byte[]> generateInvoiceById(long orderId) {
         Optional<Orders> order = repo.findById(orderId);
-        ResponseOrders response = null;
+        ResponseOrders response;
         byte[] fileBytes = new byte[0];
         if (order.isPresent()) {
             response = generateResponseOrderObject(order.get());
@@ -119,7 +118,7 @@ public class OrdersService {
         List<Products> products = productsService.getProductsDetails();
         String hsnCode = products.get(0).getHsnCode();
         Map<String, String> productsMap = new HashMap<>();
-        products.stream().forEach(product -> productsMap.put(product.getProductId(), product.getProductDesc()));
+        products.forEach(product -> productsMap.put(product.getProductId(), product.getProductDesc()));
 
         List<OrderedProducts> orderedProducts = orderedProductsService.getOrderedProductsByOrderId(ord.getOrderId());
 
@@ -144,10 +143,10 @@ public class OrdersService {
                 ResponseEntity<Result> result = createOrder(order);
                 if (HttpStatus.OK.toString().equalsIgnoreCase(result.getStatusCode().toString())) {
                     ++successOrderCounter;
-                    logger.log(Level.INFO,result.getBody().getData().toString());
+                    logger.log(Level.INFO, Objects.requireNonNull(result.getBody()).getData());
                 } else {
                     ++failedOrderCounter;
-                    logger.log(Level.INFO,result.getBody().getData().toString());
+                    logger.log(Level.INFO, Objects.requireNonNull(result.getBody()).getData());
                 }
             }
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("bulk.create.completed").data("Total successful orders : " + successOrderCounter + " & failure orders : " + failedOrderCounter).build(), HttpStatus.OK);
