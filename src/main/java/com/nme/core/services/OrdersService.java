@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static com.nme.core.util.ApplicationConstants.NO_OF_RECORDS_PER_PAGE;
 
 @Service
 public class OrdersService {
@@ -45,9 +49,11 @@ public class OrdersService {
     @Autowired
     private GenerateInvoicePDF generateInvoicePDF;
 
-    public List<ResponseOrders> getOrders() {
+    public List<ResponseOrders> getOrders(int offset) {
         List<ResponseOrders> responseOrders = new ArrayList<>();
-        List<Orders> orders = new ArrayList<>(repo.findAll());
+        Pageable pageable = PageRequest.of(offset, NO_OF_RECORDS_PER_PAGE);
+        List<Orders> orders = new ArrayList<>(repo.findAll(pageable).toList());
+        logger.info("Fetched orders count : {}", orders.size());
         for (Orders order : orders) {
             responseOrders.add(generateResponseOrderObject(order));
         }
