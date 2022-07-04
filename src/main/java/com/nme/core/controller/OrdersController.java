@@ -29,8 +29,9 @@ public class OrdersController {
 	}
 
 	@GetMapping(value = "/getOrders")
-	public List<ResponseOrders> getAllOrders() {
-		return service.getOrders();
+	public List<ResponseOrders> getAllOrders(@RequestParam(name = "offset", defaultValue = "0") int offset) {
+		logger.info("offset: {}",offset);
+		return service.getOrders(offset);
 	}
 
 	@GetMapping(value = "/getOrderById/{id}")
