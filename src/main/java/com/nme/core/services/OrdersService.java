@@ -21,8 +21,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.nme.core.util.ApplicationConstants.NO_OF_RECORDS_PER_PAGE;
-
 @Service
 public class OrdersService {
 
@@ -49,9 +47,9 @@ public class OrdersService {
     @Autowired
     private GenerateInvoicePDF generateInvoicePDF;
 
-    public List<ResponseOrders> getOrders(int offset) {
+    public List<ResponseOrders> getOrders(int offset, int numberOfRecords) {
         List<ResponseOrders> responseOrders = new ArrayList<>();
-        Pageable pageable = PageRequest.of(offset, NO_OF_RECORDS_PER_PAGE);
+        Pageable pageable = PageRequest.of(offset, numberOfRecords);
         List<Orders> orders = new ArrayList<>(repo.findAll(pageable).toList());
         logger.info("Fetched orders count : {}", orders.size());
         for (Orders order : orders) {
