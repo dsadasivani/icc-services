@@ -21,8 +21,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.nme.core.util.ApplicationConstants.NO_OF_RECORDS_PER_PAGE;
-
 @Service
 public class OrdersService {
 
