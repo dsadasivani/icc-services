@@ -1,6 +1,7 @@
 package com.nme.core.controller;
 
 import com.nme.core.model.ResponseOrders;
+import com.nme.core.util.ApplicationConstants;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,9 +30,10 @@ public class OrdersController {
 	}
 
 	@GetMapping(value = "/getOrders")
-	public List<ResponseOrders> getAllOrders(@RequestParam(name = "offset", defaultValue = "0") int offset) {
+	public List<ResponseOrders> getAllOrders(@RequestParam(name = "offset", defaultValue = ApplicationConstants.DEFAULT_PAGE_OFFSET) int offset,
+											 @RequestParam(name = "numberOfRecords", defaultValue = ApplicationConstants.DEFAULT_NO_OF_RECORDS_PER_PAGE) int size) {
 		logger.info("offset: {}",offset);
-		return service.getOrders(offset);
+		return service.getOrders(offset, size);
 	}
 
 	@GetMapping(value = "/getOrderById/{id}")
