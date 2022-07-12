@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,8 @@ public class OrdersController {
 	private OrdersService service;
 	
 	@GetMapping(value = "/")
-	public String testApiCall() {
-		return "<h1>Hello All, This is a default call</h1>";
+	public ResponseEntity<String> testApiCall() {
+		return new ResponseEntity<String>("{\"status\": \"HealthCheck Success\"}",HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/getOrders")
