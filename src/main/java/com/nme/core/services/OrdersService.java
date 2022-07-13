@@ -21,6 +21,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.nme.core.util.ApplicationConstants.ACTIVE_FLAG_N;
+import static com.nme.core.util.ApplicationConstants.ACTIVE_FLAG_Y;
+
 @Service
 public class OrdersService {
 
@@ -50,7 +53,7 @@ public class OrdersService {
     public List<ResponseOrders> getOrders(int offset, int numberOfRecords) {
         List<ResponseOrders> responseOrders = new ArrayList<>();
         Pageable pageable = PageRequest.of(offset, numberOfRecords);
-        List<Orders> orders = new ArrayList<>(repo.findAll(pageable).toList());
+        List<Orders> orders = new ArrayList<>(repo.findAll(pageable).filter(x -> ACTIVE_FLAG_Y.equalsIgnoreCase(x.getActiveFlag())).toList());
         logger.info("Fetched orders count : {}", orders.size());
         for (Orders order : orders) {
             responseOrders.add(generateResponseOrderObject(order));
@@ -59,7 +62,7 @@ public class OrdersService {
     }
 
     public ResponseOrders getOrderDetailsById(long orderId) {
-        Optional<Orders> order = repo.findById(orderId);
+        Optional<Orders> order = repo.findById(orderId).filter(x -> ACTIVE_FLAG_Y.equalsIgnoreCase(x.getActiveFlag()));
         ResponseOrders response = null;
         if (order.isPresent()) {
             response = generateResponseOrderObject(order.get());
@@ -181,6 +184,7 @@ public class OrdersService {
         obj.setOrderSentVia((orderDto.getTransport().equalsIgnoreCase("OTHERS")) ? orderDto.getOtherTransport() : orderDto.getTransport());
         obj.setFobPoint(orderDto.getFobPoint());
         obj.setTerms(orderDto.getTerms());
+        obj.setActiveFlag(ACTIVE_FLAG_Y);
         if (orderDto.getTerms().equalsIgnoreCase("Credit"))
             obj.setDueDate(orderDto.getDueDate());
         obj.setConsumerId(customerId);
@@ -193,6 +197,15 @@ public class OrdersService {
             obj.setInvoiceDate(new Timestamp(System.currentTimeMillis()));
         }
         return repo.save(obj);
+    }
+
+    public ResponseEntity<Result> softDeleteOrderById(long orderId) {
+
+        int updateCount = repo.updateActiveFlagById(ACTIVE_FLAG_N, orderId);
+        if(updateCount > 0)
+            return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("order.delete.success").data("Order deleted successfully with order ID : " + orderId).build(), HttpStatus.OK);
+        else
+            return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.BAD_REQUEST.value()).subCode("order.delete.failure").data("Order deletion failed with order ID : " + orderId).build(), HttpStatus.BAD_REQUEST);
     }
 
 }
