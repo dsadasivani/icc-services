@@ -53,4 +53,9 @@ public class OrdersController {
 	ResponseEntity<byte[]> generateInvoiceById(@PathVariable(value = "id") long orderId) {
 		return service.generateInvoiceById(orderId);
 	}
+
+	@GetMapping(value = "/deleteOrderById/{id}")
+	public ResponseEntity<Result> deleteOrderById(@PathVariable(value = "id") long orderId) {
+		return service.softDeleteOrderById(orderId);
+	}
 }
