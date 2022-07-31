@@ -1,5 +1,7 @@
 package com.nme.core.repo;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.nme.core.entity.Orders;
@@ -15,5 +17,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long>{
     @Modifying
     @Query("update Orders set activeFlag = ?1 where orderId = ?2")
     public int updateActiveFlagById(String activeFlag, long orderId);
+
+    Page<Orders> findByActiveFlag(String activeFlag, Pageable pageable);
 
 }
