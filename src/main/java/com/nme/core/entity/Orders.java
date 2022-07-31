@@ -44,5 +44,5 @@ public class Orders {
 	private String fobPoint;
 	private String terms;
 	private String dueDate;
-	
+	private String activeFlag;
 }
