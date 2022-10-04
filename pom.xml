@@ -74,11 +74,11 @@
             <version>${postgre.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-gcp-starter-storage -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-gcp-starter-storage</artifactId>
-            <version>${gcp.storage.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-gcp-starter-storage</artifactId>-->
+<!--            <version>${gcp.storage.version}</version>-->
+<!--        </dependency>-->
         <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
         <dependency>
             <groupId>commons-io</groupId>
