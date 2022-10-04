@@ -18,6 +18,6 @@ public interface OrdersRepository extends JpaRepository<Orders, Long>{
     @Query("update Orders set activeFlag = ?1 where orderId = ?2")
     public int updateActiveFlagById(String activeFlag, long orderId);
 
-    Page<Orders> findByActiveFlag(String activeFlag, Pageable pageable);
+    Page<Orders> findByActiveFlagOrderByOrderIdDesc(String activeFlag, Pageable pageable);
 
 }

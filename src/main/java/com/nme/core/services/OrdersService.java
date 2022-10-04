@@ -53,7 +53,7 @@ public class OrdersService {
     public List<ResponseOrders> getOrders(int offset, int numberOfRecords) {
         List<ResponseOrders> responseOrders = new ArrayList<>();
         Pageable pageable = PageRequest.of(offset, numberOfRecords);
-        List<Orders> orders = new ArrayList<>(repo.findByActiveFlag(ACTIVE_FLAG_Y,pageable).toList());
+        List<Orders> orders = new ArrayList<>(repo.findByActiveFlagOrderByOrderIdDesc(ACTIVE_FLAG_Y,pageable).toList());
         logger.info("Fetched orders count : {}", orders.size());
         for (Orders order : orders) {
             responseOrders.add(generateResponseOrderObject(order));
