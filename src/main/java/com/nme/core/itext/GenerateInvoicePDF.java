@@ -1,8 +1,5 @@
 package com.nme.core.itext;
 
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
 import com.itextpdf.io.IOException;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -38,8 +35,8 @@ import java.util.List;
 @Service
 public class GenerateInvoicePDF {
 
-	@Autowired
-	private Storage storage;
+//	@Autowired
+//	private Storage storage;
 
 	@Autowired
 	private Environment env;
@@ -92,17 +89,18 @@ public class GenerateInvoicePDF {
 
 		File fileToRead = new File(localFilePath);
         //PDF is ready. Now write it to Google Cloud Storage
-		if("ON".equals(fileUploadFlag)){
-			String fileName = "invoice_" + responseOrders.getInvoiceNumber() + ".pdf";
-			String bucketName = env.getProperty("gcp.bucket");
-			BlobId blobId = BlobId.of(bucketName, fileName);
-			BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-			byte[] bytes = Files.readAllBytes(Paths.get(fileToRead.toURI()));
-			storage.create(blobInfo, bytes);
-			logger.info("File created in {} GCP bucket successfully.", blobInfo.getBucket());
-		}else {
-			logger.info("File upload to Google cloud storage SKIPPED since gcp.enable.file.upload flag is set to : {}",fileUploadFlag);
-		}
+		//TODO: File saving to GCP storage code is commented
+//		if("ON".equals(fileUploadFlag)){
+//			String fileName = "invoice_" + responseOrders.getInvoiceNumber() + ".pdf";
+//			String bucketName = env.getProperty("gcp.bucket");
+//			BlobId blobId = BlobId.of(bucketName, fileName);
+//			BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+//			byte[] bytes = Files.readAllBytes(Paths.get(fileToRead.toURI()));
+//			storage.create(blobInfo, bytes);
+//			logger.info("File created in {} GCP bucket successfully.", blobInfo.getBucket());
+//		}else {
+//			logger.info("File upload to Google cloud storage SKIPPED since gcp.enable.file.upload flag is set to : {}",fileUploadFlag);
+//		}
 		byte[] bytesArray = FileUtils.readFileToByteArray(fileToRead);
 		if (fileToRead.delete()) {
 			logger.info("File deleted from local directory");
