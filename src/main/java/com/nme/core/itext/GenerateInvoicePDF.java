@@ -51,7 +51,7 @@ public class GenerateInvoicePDF {
 		assert inputFile != null;
 		final String localFilePath = String.format(inputFile,responseOrders.getInvoiceNumber());
 		File file = new File(localFilePath);
-        file.getParentFile().mkdirs();
+//        file.getParentFile().mkdirs();
         PdfWriter writer = new PdfWriter(localFilePath);
         PdfDocument pdf = new PdfDocument(writer);
         Document document = new Document(pdf);
