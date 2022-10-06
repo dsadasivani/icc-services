@@ -182,7 +182,8 @@ public class GenerateInvoicePDF {
 	    document.add(addressTable);
 	}
 	public void addHeaderImage(Document layoutDocument) throws MalformedURLException {
-		Image image = new Image(ImageDataFactory.create("src/main/resources/HeaderImage.png")).setWidth(518f);
+//		Image image = new Image(ImageDataFactory.create("src/main/resources/HeaderImage.png")).setWidth(518f);
+		Image image = new Image(ImageDataFactory.create("classpath:HeaderImage.png")).setWidth(518f);
 		layoutDocument.add(new Paragraph().add(image).setBorder(new SolidBorder(1f)));
 	}
 
