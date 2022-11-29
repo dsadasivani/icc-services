@@ -44,7 +44,7 @@ public class GenerateInvoicePDF {
 	private static final Logger logger = LogManager.getLogger(GenerateInvoicePDF.class);
 	private long totalAmount = 0;
 
-	public byte[] createPdf(ResponseOrders responseOrders) throws IOException, java.io.IOException {
+	public byte[] createPdf(ResponseOrders responseOrders) throws IOException, java.io.IOException, NullPointerException {
 		String inputFile = env.getProperty("pdf.file.location");
 		String fileUploadFlag = env.getProperty("gcp.enable.file.upload");
 		logger.info("File Location : {} ", inputFile);
@@ -139,7 +139,7 @@ public class GenerateInvoicePDF {
 		
 		for(String element : list) {
 			Cell consigneeAddrCell = new Cell();
-			if(element.trim().length() != 0) {
+			if(null != element && element.trim().length() != 0) {
 				consigneeAddrCell.add(new Paragraph(element));
 				consigneeAddrCell.setPadding(0f);
 			}
