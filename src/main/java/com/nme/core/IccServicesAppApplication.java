@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class IccServicesAppApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(IccServicesAppApplication.class, args);
-	}
-	
+    public static void main(String[] args) {
+        SpringApplication.run(IccServicesAppApplication.class, args);
+    }
+
 }

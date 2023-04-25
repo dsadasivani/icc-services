@@ -2,82 +2,82 @@ package com.nme.core.itext;
 
 
 public class OrderPOJO {
-	private String salesPerson;
-	private String poNumber;
-	private String sentDate;
-	private String sentVia;
-	private String fobPoint;
-	private String terms;
-	private String dueDate;
-	
-	public OrderPOJO(String salesPerson, String poNumber, String sentDate, String sentVia, String fobPoint,
-			String terms, String dueDate) {
-		super();
-		this.salesPerson = salesPerson;
-		this.poNumber = poNumber;
-		this.sentDate = sentDate;
-		this.sentVia = sentVia;
-		this.fobPoint = fobPoint;
-		this.terms = terms;
-		this.dueDate = dueDate;
-	}
+    private String salesPerson;
+    private String poNumber;
+    private String sentDate;
+    private String sentVia;
+    private String fobPoint;
+    private String terms;
+    private String dueDate;
 
-	public String getSalesPerson() {
-		return salesPerson;
-	}
+    public OrderPOJO(String salesPerson, String poNumber, String sentDate, String sentVia, String fobPoint,
+                     String terms, String dueDate) {
+        super();
+        this.salesPerson = salesPerson;
+        this.poNumber = poNumber;
+        this.sentDate = sentDate;
+        this.sentVia = sentVia;
+        this.fobPoint = fobPoint;
+        this.terms = terms;
+        this.dueDate = dueDate;
+    }
 
-	public void setSalesPerson(String salesPerson) {
-		this.salesPerson = salesPerson;
-	}
+    public String getSalesPerson() {
+        return salesPerson;
+    }
 
-	public String getPoNumber() {
-		return poNumber;
-	}
+    public void setSalesPerson(String salesPerson) {
+        this.salesPerson = salesPerson;
+    }
 
-	public void setPoNumber(String poNumber) {
-		this.poNumber = poNumber;
-	}
+    public String getPoNumber() {
+        return poNumber;
+    }
 
-	public String getSentDate() {
-		return sentDate;
-	}
+    public void setPoNumber(String poNumber) {
+        this.poNumber = poNumber;
+    }
 
-	public void setSentDate(String sentDate) {
-		this.sentDate = sentDate;
-	}
+    public String getSentDate() {
+        return sentDate;
+    }
 
-	public String getSentVia() {
-		return sentVia;
-	}
+    public void setSentDate(String sentDate) {
+        this.sentDate = sentDate;
+    }
 
-	public void setSentVia(String sentVia) {
-		this.sentVia = sentVia;
-	}
+    public String getSentVia() {
+        return sentVia;
+    }
 
-	public String getFobPoint() {
-		return fobPoint;
-	}
+    public void setSentVia(String sentVia) {
+        this.sentVia = sentVia;
+    }
 
-	public void setFobPoint(String fobPoint) {
-		this.fobPoint = fobPoint;
-	}
+    public String getFobPoint() {
+        return fobPoint;
+    }
 
-	public String getTerms() {
-		return terms;
-	}
+    public void setFobPoint(String fobPoint) {
+        this.fobPoint = fobPoint;
+    }
 
-	public void setTerms(String terms) {
-		this.terms = terms;
-	}
+    public String getTerms() {
+        return terms;
+    }
 
-	public String getDueDate() {
-		return dueDate;
-	}
+    public void setTerms(String terms) {
+        this.terms = terms;
+    }
 
-	public void setDueDate(String dueDate) {
-		this.dueDate = dueDate;
-	}
-	
-	
+    public String getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
+    }
+
+
 }
 
