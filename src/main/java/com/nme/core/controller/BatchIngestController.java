@@ -25,7 +25,7 @@ public class BatchIngestController {
 
     @PostMapping(value = "/createBulkOrders")
     public ResponseEntity<Result> createBulkOrders(@RequestBody List<OrderDetailsDTO> object) {
-        logger.log(Level.INFO,object.toString());
+        logger.log(Level.INFO, object.toString());
         return service.createBulkOrders(object);
     }
 }

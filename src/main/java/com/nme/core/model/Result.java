@@ -2,7 +2,6 @@ package com.nme.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
@@ -13,8 +12,8 @@ import lombok.ToString;
 @Builder
 @ToString
 public class Result {
-	private int resultCode;
-	private String subCode;
-	private String data;
-	private String exceptionMessage;
+    private int resultCode;
+    private String subCode;
+    private String data;
+    private String exceptionMessage;
 }
