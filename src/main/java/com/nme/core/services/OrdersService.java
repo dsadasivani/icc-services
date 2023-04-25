@@ -53,7 +53,7 @@ public class OrdersService {
     public List<ResponseOrders> getOrders(int offset, int numberOfRecords) {
         List<ResponseOrders> responseOrders = new ArrayList<>();
         Pageable pageable = PageRequest.of(offset, numberOfRecords);
-        List<Orders> orders = new ArrayList<>(repo.findByActiveFlagOrderByOrderIdDesc(ACTIVE_FLAG_Y,pageable).toList());
+        List<Orders> orders = new ArrayList<>(repo.findByActiveFlagOrderByOrderIdDesc(ACTIVE_FLAG_Y, pageable).toList());
         logger.info("Fetched orders count : {}", orders.size());
         for (Orders order : orders) {
             responseOrders.add(generateResponseOrderObject(order));
@@ -115,6 +115,7 @@ public class OrdersService {
         List<OrderTaxDetails> orderTaxDetails = orderTaxDetailsService.getOrderTaxDetailsByOrderId(order.getOrderId());
         ord.setCsgstFlag(orderTaxDetails.get(0).getCsgstFlag());
         ord.setIgstFlag(orderTaxDetails.get(0).getIgstFlag());
+        ord.setOfflineTransactionFlag(orderTaxDetails.get(0).getOfflineTransactionFlag());
 
         generateProductObject(ord);
 
@@ -188,12 +189,12 @@ public class OrdersService {
         if (orderDto.getTerms().equalsIgnoreCase("Credit"))
             obj.setDueDate(orderDto.getDueDate());
         obj.setConsumerId(customerId);
-        if(orderDto.getInvoiceDate() != null && orderDto.getInvoiceDate().length() > 0) {
+        if (orderDto.getInvoiceDate() != null && orderDto.getInvoiceDate().length() > 0) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             Date parsedDate = dateFormat.parse(orderDto.getInvoiceDate().concat(" 09:00:00"));
             Timestamp invoiceDate = new java.sql.Timestamp(parsedDate.getTime());
             obj.setInvoiceDate(invoiceDate);
-        }else{
+        } else {
             obj.setInvoiceDate(new Timestamp(System.currentTimeMillis()));
         }
         return repo.save(obj);
@@ -202,7 +203,7 @@ public class OrdersService {
     public ResponseEntity<Result> softDeleteOrderById(long orderId) {
 
         int updateCount = repo.updateActiveFlagById(ACTIVE_FLAG_N, orderId);
-        if(updateCount > 0)
+        if (updateCount > 0)
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("order.delete.success").data("Order deleted successfully with order ID : " + orderId).build(), HttpStatus.OK);
         else
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.BAD_REQUEST.value()).subCode("order.delete.failure").data("Order deletion failed with order ID : " + orderId).build(), HttpStatus.BAD_REQUEST);

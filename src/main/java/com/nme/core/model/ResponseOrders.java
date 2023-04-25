@@ -1,6 +1,8 @@
 package com.nme.core.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -29,7 +31,9 @@ public class ResponseOrders {
     private long cashDiscountValue;
     private String csgstFlag;
     private String igstFlag;
+    private String offlineTransactionFlag;
     private List<Product> product;
+
     @Data
     public static class Product {
         private String productId;
