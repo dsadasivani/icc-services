@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface OrderedProductsRepository extends JpaRepository<OrderedProducts, Long> {
-    List<OrderedProducts> findByOrderId(long orderId);
+    List<OrderedProducts> findByOrderIdAndActiveFlag(long orderId, String activeFlag);
 }

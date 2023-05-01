@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static com.nme.core.util.ApplicationConstants.ACTIVE_FLAG_Y;
+
 @Service
 public class OrderedProductsService {
 
@@ -30,14 +32,14 @@ public class OrderedProductsService {
                 obj.setProductId(entry.getKey());
                 obj.setQuantity(Long.parseLong(entry.getValue().getQuantity()));
                 obj.setUnitPrice(Double.parseDouble(entry.getValue().getUnitPrice()));
-
+                obj.setActiveFlag(ACTIVE_FLAG_Y);
                 repo.save(obj);
             }
         }
     }
 
     public List<OrderedProducts> getOrderedProductsByOrderId(long orderId) {
-        return repo.findByOrderId(orderId);
+        return repo.findByOrderIdAndActiveFlag(orderId, "Y");
     }
 
 }
