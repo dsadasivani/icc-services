@@ -6,6 +6,7 @@ import com.nme.core.itext.GenerateInvoicePDF;
 import com.nme.core.model.ResponseOrders;
 import com.nme.core.model.Result;
 import com.nme.core.repo.OrdersRepository;
+import com.nme.core.util.Utility;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -117,18 +118,18 @@ public class OrdersService {
         ord.setIgstFlag(orderTaxDetails.get(0).getIgstFlag());
         ord.setOfflineTransactionFlag(orderTaxDetails.get(0).getOfflineTransactionFlag());
 
-        generateProductObject(ord);
+        generateProductObject(ord, ACTIVE_FLAG_Y);
 
         return ord;
     }
 
-    private void generateProductObject(ResponseOrders ord) {
+    private void generateProductObject(ResponseOrders ord, String activeFlag) {
         List<Products> products = productsService.getProductsDetails();
         String hsnCode = products.get(0).getHsnCode();
         Map<String, String> productsMap = new HashMap<>();
         products.forEach(product -> productsMap.put(product.getProductId(), product.getProductDesc()));
 
-        List<OrderedProducts> orderedProducts = orderedProductsService.getOrderedProductsByOrderId(ord.getOrderId());
+        List<OrderedProducts> orderedProducts = orderedProductsService.getOrderedProductsByOrderId(ord.getOrderId(), activeFlag);
 
         List<ResponseOrders.Product> responseOrderedProducts = new ArrayList<>();
         for (OrderedProducts o : orderedProducts) {
@@ -175,6 +176,59 @@ public class OrdersService {
             e.printStackTrace();
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("order.create.failure").exceptionMessage(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public ResponseEntity<Result> updateOrder(ResponseOrders orderObj) {
+        boolean updateFlag = false;
+        try {
+            List<Orders> order = repo.findByOrderIdAndActiveFlag(orderObj.getOrderId(), ACTIVE_FLAG_Y);
+            if (!order.isEmpty()) {
+                Orders previousOrder = order.get(0);
+                // 1. Validate ICC_ORDERS data
+                if (!validateOrder(orderObj, previousOrder)) {
+                    int orderUpdated = repo.updateOrder(orderObj.getDueDate(), orderObj.getFobPoint(), orderObj.getInvoiceDate(), orderObj.getInvoiceNumber(), orderObj.getOrderSentVia(), orderObj.getSalesPersonName(), orderObj.getTerms(), orderObj.getOrderId());
+                    System.out.println("1 ==> Order updated !!");
+                    if (orderUpdated > 0) {
+                        updateFlag = true;
+                    }
+                }
+                // 2. Validate ICC_CUSTOMER_DETAILS data
+                CustomerDetails previousCustomerDetails = customerService.getConsumerDetailsById(previousOrder.getConsumerId()).get(0);
+                if (!validateCustomerDetails(orderObj, previousCustomerDetails)) {
+                    int customerDetailsUpdated = customerService.updateCustomerDetails(orderObj, previousCustomerDetails.getConsumerId());
+                    System.out.println("2 ==> Customer_details updated !!");
+                    if (customerDetailsUpdated > 0) {
+                        updateFlag = true;
+                    }
+                }
+            }
+            if (updateFlag) {
+                return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("order.update.success").data(orderObj).build(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.NOT_MODIFIED.value()).subCode("order.update.noupdate").data("No update happened with order ID : " + orderObj.getOrderId()).build(), HttpStatus.NOT_MODIFIED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("order.update.failure").exceptionMessage(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static boolean validateOrder(ResponseOrders orderObj, Orders previousOrder) {
+        return Utility.handleNull(orderObj.getDueDate()).equals(Utility.handleNull(previousOrder.getDueDate())) &&
+                Utility.handleNull(orderObj.getFobPoint()).equals(Utility.handleNull(previousOrder.getFobPoint())) &&
+                orderObj.getInvoiceDate().equals(previousOrder.getInvoiceDate()) &&
+                orderObj.getInvoiceNumber() == previousOrder.getInvoiceNumber() &&
+                Utility.handleNull(orderObj.getOrderSentVia()).equals(Utility.handleNull(previousOrder.getOrderSentVia())) &&
+                Utility.handleNull(orderObj.getSalesPersonName()).equals(Utility.handleNull(previousOrder.getSalesPersonName())) &&
+                Utility.handleNull(orderObj.getTerms()).equals(Utility.handleNull(previousOrder.getTerms()));
+    }
+
+    private static boolean validateCustomerDetails(ResponseOrders orderObj, CustomerDetails previousCustomerDetails) {
+        return Utility.handleNull(orderObj.getAddress()).equals(Utility.handleNull(previousCustomerDetails.getAddress())) &&
+                Utility.handleNull(orderObj.getAddress2()).equals(Utility.handleNull(previousCustomerDetails.getAddress2())) &&
+                Utility.handleNull(orderObj.getCompanyName()).equals(Utility.handleNull(previousCustomerDetails.getCompanyName())) &&
+                Utility.handleNull(orderObj.getGstin()).equals(Utility.handleNull(previousCustomerDetails.getGstin())) &&
+                Utility.handleNull(orderObj.getPhoneNumber()).equals(Utility.handleNull(previousCustomerDetails.getPhoneNumber()));
     }
 
     private Orders saveOrderObject(OrderDetailsDTO orderDto, long customerId) throws ParseException {

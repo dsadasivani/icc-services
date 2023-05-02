@@ -38,8 +38,8 @@ public class OrderedProductsService {
         }
     }
 
-    public List<OrderedProducts> getOrderedProductsByOrderId(long orderId) {
-        return repo.findByOrderIdAndActiveFlag(orderId, "Y");
+    public List<OrderedProducts> getOrderedProductsByOrderId(long orderId, String activeFlag) {
+        return repo.findByOrderIdAndActiveFlag(orderId, activeFlag);
     }
 
 }

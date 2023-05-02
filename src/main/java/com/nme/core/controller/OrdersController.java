@@ -41,6 +41,11 @@ public class OrdersController {
         return service.getOrderDetailsById(orderId);
     }
 
+    @PostMapping(value = "/updateOrder")
+    public ResponseEntity<Result> updateOrder(@RequestBody ResponseOrders object) {
+        return service.updateOrder(object);
+    }
+
     @PostMapping(value = "/createOrder")
     public ResponseEntity<Result> createOrderDTO(@RequestBody OrderDetailsDTO object) {
         logger.log(Level.INFO, object.toString());

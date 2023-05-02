@@ -14,6 +14,6 @@ import lombok.ToString;
 public class Result {
     private int resultCode;
     private String subCode;
-    private String data;
+    private Object data;
     private String exceptionMessage;
 }
