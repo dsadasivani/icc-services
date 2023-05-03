@@ -1,5 +1,7 @@
 package com.nme.core.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nme.core.dto.OrderDetailsDTO;
 import com.nme.core.model.ResponseOrders;
 import com.nme.core.model.Result;
@@ -25,8 +27,9 @@ public class OrdersController {
     private OrdersService service;
 
     @GetMapping(value = "/")
-    public ResponseEntity<String> testApiCall() {
-        return new ResponseEntity<String>("{\"status\": \"HealthCheck Success\"}", HttpStatus.OK);
+    public ResponseEntity<Object> testApiCall() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return new ResponseEntity<Object>(mapper.readTree("{\"status\": \"HealthCheck Success\"}"), HttpStatus.OK);
     }
 
     @GetMapping(value = "/getOrders")
