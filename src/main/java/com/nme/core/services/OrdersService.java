@@ -16,6 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -51,6 +54,9 @@ public class OrdersService {
 
     @Autowired
     private GenerateInvoicePDF generateInvoicePDF;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     public List<ResponseOrders> getOrders(int offset, int numberOfRecords) {
         List<ResponseOrders> responseOrders = new ArrayList<>();
@@ -166,15 +172,21 @@ public class OrdersService {
     }
 
     public ResponseEntity<Result> createOrder(OrderDetailsDTO orderDto) {
+        TransactionStatus status = null;
         try {
+            status = transactionManager.getTransaction(new DefaultTransactionDefinition());
             CustomerDetails customerObj = customerService.saveCustomerDetails(orderDto);
             Orders orderObject = saveOrderObject(orderDto, customerObj.getConsumerId());
             orderedProductsService.saveOrderedProductsDetails(orderDto, orderObject.getOrderId());
             orderDiscountService.saveOrderDiscountDetails(orderDto, orderObject.getOrderId());
             orderTaxDetailsService.saveOrderTaxDetails(orderDto, orderObject.getOrderId());
+            transactionManager.commit(status);
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("order.create.success").data("Order Created successfully with order ID : " + orderObject.getOrderId()).build(), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
+            if (status != null) {
+                transactionManager.rollback(status);
+            }
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("order.create.failure").exceptionMessage(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -316,26 +328,30 @@ public class OrdersService {
     }
 
     private Orders saveOrderObject(OrderDetailsDTO orderDto, long customerId) throws ParseException {
-        Orders obj = new Orders();
-        obj.setInvoiceNumber(Long.parseLong(orderDto.getInvoiceNumber()));
-        obj.setSalesPersonName(orderDto.getSalesPersonName());
-        obj.setOrderSentDate(new Timestamp(System.currentTimeMillis()));
-        obj.setOrderSentVia((orderDto.getTransport().equalsIgnoreCase("OTHERS")) ? orderDto.getOtherTransport() : orderDto.getTransport());
-        obj.setFobPoint(orderDto.getFobPoint());
-        obj.setTerms(orderDto.getTerms());
-        obj.setActiveFlag(ACTIVE_FLAG_Y);
-        if (orderDto.getTerms().equalsIgnoreCase("Credit"))
-            obj.setDueDate(orderDto.getDueDate());
-        obj.setConsumerId(customerId);
-        if (orderDto.getInvoiceDate() != null && orderDto.getInvoiceDate().length() > 0) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            Date parsedDate = dateFormat.parse(orderDto.getInvoiceDate().concat(" 09:00:00"));
-            Timestamp invoiceDate = new java.sql.Timestamp(parsedDate.getTime());
-            obj.setInvoiceDate(invoiceDate);
-        } else {
-            obj.setInvoiceDate(new Timestamp(System.currentTimeMillis()));
+        try {
+            Orders obj = new Orders();
+            obj.setInvoiceNumber(Long.parseLong(orderDto.getInvoiceNumber()));
+            obj.setSalesPersonName(orderDto.getSalesPersonName());
+            obj.setOrderSentDate(new Timestamp(System.currentTimeMillis()));
+            obj.setOrderSentVia((orderDto.getTransport().equalsIgnoreCase("OTHERS")) ? orderDto.getOtherTransport() : orderDto.getTransport());
+            obj.setFobPoint(orderDto.getFobPoint());
+            obj.setTerms(orderDto.getTerms());
+            obj.setActiveFlag(ACTIVE_FLAG_Y);
+            if (orderDto.getTerms().equalsIgnoreCase("Credit"))
+                obj.setDueDate(orderDto.getDueDate());
+            obj.setConsumerId(customerId);
+            if (orderDto.getInvoiceDate() != null && orderDto.getInvoiceDate().length() > 0) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                Date parsedDate = dateFormat.parse(orderDto.getInvoiceDate().concat(" 09:00:00"));
+                Timestamp invoiceDate = new java.sql.Timestamp(parsedDate.getTime());
+                obj.setInvoiceDate(invoiceDate);
+            } else {
+                obj.setInvoiceDate(new Timestamp(System.currentTimeMillis()));
+            }
+            return repo.save(obj);
+        } catch (Exception e) {
+            throw e;
         }
-        return repo.save(obj);
     }
 
     public ResponseEntity<Result> softDeleteOrderById(long orderId) {

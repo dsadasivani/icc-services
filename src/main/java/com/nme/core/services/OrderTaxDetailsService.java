@@ -19,34 +19,30 @@ public class OrderTaxDetailsService {
 
     public void saveOrderTaxDetails(OrderDetailsDTO dto, long orderId) {
 
-        OrderTaxDetails obj = new OrderTaxDetails();
-        obj.setOrderId(orderId);
-        switch (dto.getOrderScope()) {
-            case CSGST:
-                obj.setCsgstFlag("Y");
-                obj.setIgstFlag("N");
-                obj.setOfflineTransactionFlag("N");
-                break;
-            case IGST:
-                obj.setIgstFlag("Y");
-                obj.setCsgstFlag("N");
-                obj.setOfflineTransactionFlag("N");
-                break;
-            case OFFLINE_TRANSACTION:
-                obj.setIgstFlag("N");
-                obj.setCsgstFlag("N");
-                obj.setOfflineTransactionFlag("Y");
-                break;
+        try {
+            OrderTaxDetails obj = new OrderTaxDetails();
+            obj.setOrderId(orderId);
+            switch (dto.getOrderScope()) {
+                case CSGST:
+                    obj.setCsgstFlag("Y");
+                    obj.setIgstFlag("N");
+                    obj.setOfflineTransactionFlag("N");
+                    break;
+                case IGST:
+                    obj.setIgstFlag("Y");
+                    obj.setCsgstFlag("N");
+                    obj.setOfflineTransactionFlag("N");
+                    break;
+                case OFFLINE_TRANSACTION:
+                    obj.setIgstFlag("N");
+                    obj.setCsgstFlag("N");
+                    obj.setOfflineTransactionFlag("Y");
+                    break;
+            }
+            repo.save(obj);
+        } catch (Exception e) {
+            throw e;
         }
-//        if (dto.getOrderScope().equals("state")) {
-//            obj.setCsgstFlag("Y");
-//            obj.setIgstFlag("N");
-//        } else {
-//            obj.setIgstFlag("Y");
-//            obj.setCsgstFlag("N");
-//        }
-
-        repo.save(obj);
     }
 
     public List<OrderTaxDetails> getOrderTaxDetailsByOrderId(long orderId) {
