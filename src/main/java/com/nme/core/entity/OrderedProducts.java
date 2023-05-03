@@ -22,4 +22,5 @@ public class OrderedProducts {
     private String productId;
     private long quantity;
     private double unitPrice;
+    private String activeFlag;
 }

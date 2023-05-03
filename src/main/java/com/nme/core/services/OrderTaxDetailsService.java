@@ -2,6 +2,7 @@ package com.nme.core.services;
 
 import com.nme.core.dto.OrderDetailsDTO;
 import com.nme.core.entity.OrderTaxDetails;
+import com.nme.core.model.ResponseOrders;
 import com.nme.core.repo.OrderTaxDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,10 @@ public class OrderTaxDetailsService {
 
     public List<OrderTaxDetails> getOrderTaxDetailsByOrderId(long orderId) {
         return repo.findByOrderId(orderId);
+    }
+
+    public int updateOrderTaxDetails(ResponseOrders input, long orderId) {
+        return repo.updateTaxDetails(input.getCsgstFlag(), input.getIgstFlag(), input.getOfflineTransactionFlag(), orderId);
     }
 
 }
