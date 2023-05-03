@@ -6,6 +6,7 @@ import com.nme.core.itext.GenerateInvoicePDF;
 import com.nme.core.model.ResponseOrders;
 import com.nme.core.model.Result;
 import com.nme.core.repo.OrdersRepository;
+import com.nme.core.util.Utility;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,6 +21,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.nme.core.util.ApplicationConstants.ACTIVE_FLAG_N;
 import static com.nme.core.util.ApplicationConstants.ACTIVE_FLAG_Y;
@@ -117,18 +119,18 @@ public class OrdersService {
         ord.setIgstFlag(orderTaxDetails.get(0).getIgstFlag());
         ord.setOfflineTransactionFlag(orderTaxDetails.get(0).getOfflineTransactionFlag());
 
-        generateProductObject(ord);
+        generateProductObject(ord, ACTIVE_FLAG_Y);
 
         return ord;
     }
 
-    private void generateProductObject(ResponseOrders ord) {
+    private void generateProductObject(ResponseOrders ord, String activeFlag) {
         List<Products> products = productsService.getProductsDetails();
         String hsnCode = products.get(0).getHsnCode();
         Map<String, String> productsMap = new HashMap<>();
         products.forEach(product -> productsMap.put(product.getProductId(), product.getProductDesc()));
 
-        List<OrderedProducts> orderedProducts = orderedProductsService.getOrderedProductsByOrderId(ord.getOrderId());
+        List<OrderedProducts> orderedProducts = orderedProductsService.getOrderedProductsByOrderId(ord.getOrderId(), activeFlag);
 
         List<ResponseOrders.Product> responseOrderedProducts = new ArrayList<>();
         for (OrderedProducts o : orderedProducts) {
@@ -175,6 +177,142 @@ public class OrdersService {
             e.printStackTrace();
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("order.create.failure").exceptionMessage(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public ResponseEntity<Result> updateOrder(ResponseOrders orderObj) {
+        boolean updateFlag = false;
+        try {
+            List<Orders> order = repo.findByOrderIdAndActiveFlag(orderObj.getOrderId(), ACTIVE_FLAG_Y);
+            if (!order.isEmpty()) {
+                Orders previousOrder = order.get(0);
+                // 1. Validate ICC_ORDERS data
+                if (!validateOrder(orderObj, previousOrder)) {
+                    int orderUpdated = repo.updateOrder(orderObj.getDueDate(), orderObj.getFobPoint(), orderObj.getInvoiceDate(), orderObj.getInvoiceNumber(), orderObj.getOrderSentVia(), orderObj.getSalesPersonName(), orderObj.getTerms(), orderObj.getOrderId());
+                    if (orderUpdated > 0) {
+                        logger.info("1 ==> Order updated !!");
+                        updateFlag = true;
+                    }
+                }
+                // 2. Validate ICC_CUSTOMER_DETAILS data
+                CustomerDetails previousCustomerDetails = customerService.getConsumerDetailsById(previousOrder.getConsumerId()).get(0);
+                if (!validateCustomerDetails(orderObj, previousCustomerDetails)) {
+                    int customerDetailsUpdated = customerService.updateCustomerDetails(orderObj, previousCustomerDetails.getConsumerId());
+                    if (customerDetailsUpdated > 0) {
+                        logger.info("2 ==> Customer_details updated !!");
+                        updateFlag = true;
+                    }
+                }
+
+                //3. Validate ICC_ORDERED_PRODUCTS data
+                List<OrderedProducts> orderedProducts = orderedProductsService.getOrderedProductsByOrderId(previousOrder.getOrderId(), ACTIVE_FLAG_Y);
+                Map<String, String> productsAction = new HashMap<>();
+                evaluateProductActions(orderObj, orderedProducts, productsAction);
+                if (productsAction.size() > 0) {
+                    updateFlag = true;
+                    logger.info("3 ==> Ordered_products updated !!");
+                }
+                productsAction.forEach((key, value) -> {
+                    Optional<ResponseOrders.Product> obj = orderObj.getProduct().stream().filter(y -> y.getProductId().equals(key)).findFirst();
+                    switch (value) {
+                        case "ADD":
+                            orderedProductsService.saveOrderedProductsDetails(obj.orElse(null), orderObj.getOrderId());
+                            break;
+                        case "REMOVE":
+                            orderedProductsService.inactivateOrderedProduct(key, orderObj.getOrderId());
+                            break;
+                        case "MODIFY":
+                            orderedProductsService.updateOrderedProduct(obj.orElse(null), orderObj.getOrderId());
+                            break;
+                    }
+                });
+                logger.info("Products Action => {}", productsAction.toString());
+
+                //4. Validate ICC_ORDER_DISCOUNT data
+                OrderDiscount previousOrderDiscount = orderDiscountService.getOrderDiscountDetailsByOrderId(previousOrder.getOrderId()).get(0);
+                if (!validateOrderDiscount(orderObj, previousOrderDiscount)) {
+                    int orderDiscountUpdated = orderDiscountService.updateOrderDiscount(orderObj, previousOrderDiscount.getOrderId());
+                    if (orderDiscountUpdated > 0) {
+                        logger.info("4 ==> Order_discount updated");
+                        updateFlag = true;
+                    }
+                }
+
+                //5. Validate ICC_ORDER_TAX_DETAILS data
+                OrderTaxDetails previousOrderTaxDetails = orderTaxDetailsService.getOrderTaxDetailsByOrderId(previousOrder.getOrderId()).get(0);
+                if (!validateTaxDetails(orderObj, previousOrderTaxDetails)) {
+                    int orderTaxDetailsUpdated = orderTaxDetailsService.updateOrderTaxDetails(orderObj, previousOrderTaxDetails.getOrderId());
+                    if (orderTaxDetailsUpdated > 0) {
+                        logger.info("5 ==> Order_tax_details updated");
+                        updateFlag = true;
+                    }
+                }
+            }
+            if (updateFlag) {
+                return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.OK.value()).subCode("order.update.success").data(orderObj).build(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.NOT_MODIFIED.value()).subCode("order.update.noupdate").data("No update happened with order ID : " + orderObj.getOrderId()).build(), HttpStatus.NOT_MODIFIED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("order.update.failure").exceptionMessage(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private static void evaluateProductActions(ResponseOrders orderObj, List<OrderedProducts> orderedProducts, Map<String, String> productsAction) {
+        List<String> previousProducts = orderObj.getProduct().stream().map(ResponseOrders.Product::getProductId).collect(Collectors.toList());
+        List<String> products = orderedProducts.stream().map(OrderedProducts::getProductId).collect(Collectors.toList());
+        previousProducts.stream().filter(element -> !products.contains(element)).collect(Collectors.toList()).forEach(x -> {
+            productsAction.put(x, "ADD");
+        });
+        products.stream().filter(element -> !previousProducts.contains(element)).collect(Collectors.toList()).forEach(x -> {
+            productsAction.put(x, "REMOVE");
+        });
+        previousProducts.stream().filter(products::contains).collect(Collectors.toList()).forEach(x -> {
+            Optional<ResponseOrders.Product> productObj = orderObj.getProduct().stream().filter(y -> y.getProductId().equals(x)).findFirst();
+            Optional<OrderedProducts> prevProductObj = orderedProducts.stream().filter(y -> y.getProductId().equals(x)).findFirst();
+            if (!validateProductDetails(productObj.orElse(null), prevProductObj.orElse(null))) {
+                productsAction.put(x, "MODIFY");
+            }
+        });
+    }
+
+    private static boolean validateOrder(ResponseOrders orderObj, Orders previousOrder) {
+        return Utility.handleNull(orderObj.getDueDate()).equals(Utility.handleNull(previousOrder.getDueDate())) &&
+                Utility.handleNull(orderObj.getFobPoint()).equals(Utility.handleNull(previousOrder.getFobPoint())) &&
+                orderObj.getInvoiceDate().equals(previousOrder.getInvoiceDate()) &&
+                orderObj.getInvoiceNumber() == previousOrder.getInvoiceNumber() &&
+                Utility.handleNull(orderObj.getOrderSentVia()).equals(Utility.handleNull(previousOrder.getOrderSentVia())) &&
+                Utility.handleNull(orderObj.getSalesPersonName()).equals(Utility.handleNull(previousOrder.getSalesPersonName())) &&
+                Utility.handleNull(orderObj.getTerms()).equals(Utility.handleNull(previousOrder.getTerms()));
+    }
+
+    private static boolean validateCustomerDetails(ResponseOrders orderObj, CustomerDetails previousCustomerDetails) {
+        return Utility.handleNull(orderObj.getAddress()).equals(Utility.handleNull(previousCustomerDetails.getAddress())) &&
+                Utility.handleNull(orderObj.getAddress2()).equals(Utility.handleNull(previousCustomerDetails.getAddress2())) &&
+                Utility.handleNull(orderObj.getCompanyName()).equals(Utility.handleNull(previousCustomerDetails.getCompanyName())) &&
+                Utility.handleNull(orderObj.getGstin()).equals(Utility.handleNull(previousCustomerDetails.getGstin())) &&
+                Utility.handleNull(orderObj.getPhoneNumber()).equals(Utility.handleNull(previousCustomerDetails.getPhoneNumber()));
+    }
+
+    private static boolean validateProductDetails(ResponseOrders.Product inputProduct, OrderedProducts previousOrderedProducts) {
+        if (inputProduct != null && previousOrderedProducts != null) {
+            return inputProduct.getQuantity() == previousOrderedProducts.getQuantity() &&
+                    inputProduct.getUnitPrice() == previousOrderedProducts.getUnitPrice();
+        }
+        return true;
+    }
+
+    private static boolean validateOrderDiscount(ResponseOrders orderObj, OrderDiscount previousOrderDiscount) {
+        return Utility.handleNull(orderObj.getCashDiscount()).equals(Utility.handleNull(previousOrderDiscount.getCashDiscount())) &&
+                Utility.handleNull(orderObj.getTradeDiscount()).equals(Utility.handleNull(previousOrderDiscount.getTradeDiscount())) &&
+                orderObj.getCashDiscountValue() == previousOrderDiscount.getCashDiscountValue() &&
+                orderObj.getTradeDiscountValue() == previousOrderDiscount.getTradeDiscountValue();
+    }
+
+    private static boolean validateTaxDetails(ResponseOrders orderObj, OrderTaxDetails previousOrderTaxDetails) {
+        return Utility.handleNull(orderObj.getCsgstFlag()).equals(Utility.handleNull(previousOrderTaxDetails.getCsgstFlag())) &&
+                Utility.handleNull(orderObj.getIgstFlag()).equals(Utility.handleNull(previousOrderTaxDetails.getIgstFlag())) &&
+                Utility.handleNull(orderObj.getOfflineTransactionFlag()).equals(Utility.handleNull(previousOrderTaxDetails.getOfflineTransactionFlag()));
     }
 
     private Orders saveOrderObject(OrderDetailsDTO orderDto, long customerId) throws ParseException {

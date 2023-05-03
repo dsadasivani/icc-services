@@ -2,6 +2,7 @@ package com.nme.core.services;
 
 import com.nme.core.dto.OrderDetailsDTO;
 import com.nme.core.entity.CustomerDetails;
+import com.nme.core.model.ResponseOrders;
 import com.nme.core.repo.CustomerDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,10 @@ public class CustomerDetailsService {
         obj.setPhoneNumber(dto.getPhoneNumber());
 
         return repo.save(obj);
+    }
+
+    public int updateCustomerDetails(ResponseOrders input, long customerId) {
+        return repo.updateCustomerDetails(input.getAddress(), input.getAddress2(), input.getCompanyName(), input.getGstin(), input.getPhoneNumber(), customerId);
     }
 
     public List<CustomerDetails> getConsumerDetailsById(long id) {
