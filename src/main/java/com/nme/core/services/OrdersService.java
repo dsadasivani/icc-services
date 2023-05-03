@@ -21,6 +21,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.nme.core.util.ApplicationConstants.ACTIVE_FLAG_N;
 import static com.nme.core.util.ApplicationConstants.ACTIVE_FLAG_Y;
@@ -201,8 +202,30 @@ public class OrdersService {
                         updateFlag = true;
                     }
                 }
+
                 //3. Validate ICC_ORDERED_PRODUCTS data
-                //TODO: in-progress
+                List<OrderedProducts> orderedProducts = orderedProductsService.getOrderedProductsByOrderId(previousOrder.getOrderId(), ACTIVE_FLAG_Y);
+                Map<String, String> productsAction = new HashMap<>();
+                evaluateProductActions(orderObj, orderedProducts, productsAction);
+                if (productsAction.size() > 0) {
+                    updateFlag = true;
+                    logger.info("3 ==> Ordered_products updated !!");
+                }
+                productsAction.forEach((key, value) -> {
+                    Optional<ResponseOrders.Product> obj = orderObj.getProduct().stream().filter(y -> y.getProductId().equals(key)).findFirst();
+                    switch (value) {
+                        case "ADD":
+                            orderedProductsService.saveOrderedProductsDetails(obj.orElse(null), orderObj.getOrderId());
+                            break;
+                        case "REMOVE":
+                            orderedProductsService.inactivateOrderedProduct(key, orderObj.getOrderId());
+                            break;
+                        case "MODIFY":
+                            orderedProductsService.updateOrderedProduct(obj.orElse(null), orderObj.getOrderId());
+                            break;
+                    }
+                });
+                logger.info("Products Action => {}", productsAction.toString());
 
                 //4. Validate ICC_ORDER_DISCOUNT data
                 OrderDiscount previousOrderDiscount = orderDiscountService.getOrderDiscountDetailsByOrderId(previousOrder.getOrderId()).get(0);
@@ -219,7 +242,7 @@ public class OrdersService {
                 if (!validateTaxDetails(orderObj, previousOrderTaxDetails)) {
                     int orderTaxDetailsUpdated = orderTaxDetailsService.updateOrderTaxDetails(orderObj, previousOrderTaxDetails.getOrderId());
                     if (orderTaxDetailsUpdated > 0) {
-                        logger.info("5 ==> Order_discount updated");
+                        logger.info("5 ==> Order_tax_details updated");
                         updateFlag = true;
                     }
                 }
@@ -233,6 +256,24 @@ public class OrdersService {
             e.printStackTrace();
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("order.update.failure").exceptionMessage(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private static void evaluateProductActions(ResponseOrders orderObj, List<OrderedProducts> orderedProducts, Map<String, String> productsAction) {
+        List<String> previousProducts = orderObj.getProduct().stream().map(ResponseOrders.Product::getProductId).collect(Collectors.toList());
+        List<String> products = orderedProducts.stream().map(OrderedProducts::getProductId).collect(Collectors.toList());
+        previousProducts.stream().filter(element -> !products.contains(element)).collect(Collectors.toList()).forEach(x -> {
+            productsAction.put(x, "ADD");
+        });
+        products.stream().filter(element -> !previousProducts.contains(element)).collect(Collectors.toList()).forEach(x -> {
+            productsAction.put(x, "REMOVE");
+        });
+        previousProducts.stream().filter(products::contains).collect(Collectors.toList()).forEach(x -> {
+            Optional<ResponseOrders.Product> productObj = orderObj.getProduct().stream().filter(y -> y.getProductId().equals(x)).findFirst();
+            Optional<OrderedProducts> prevProductObj = orderedProducts.stream().filter(y -> y.getProductId().equals(x)).findFirst();
+            if (!validateProductDetails(productObj.orElse(null), prevProductObj.orElse(null))) {
+                productsAction.put(x, "MODIFY");
+            }
+        });
     }
 
     private static boolean validateOrder(ResponseOrders orderObj, Orders previousOrder) {
@@ -251,6 +292,14 @@ public class OrdersService {
                 Utility.handleNull(orderObj.getCompanyName()).equals(Utility.handleNull(previousCustomerDetails.getCompanyName())) &&
                 Utility.handleNull(orderObj.getGstin()).equals(Utility.handleNull(previousCustomerDetails.getGstin())) &&
                 Utility.handleNull(orderObj.getPhoneNumber()).equals(Utility.handleNull(previousCustomerDetails.getPhoneNumber()));
+    }
+
+    private static boolean validateProductDetails(ResponseOrders.Product inputProduct, OrderedProducts previousOrderedProducts) {
+        if (inputProduct != null && previousOrderedProducts != null) {
+            return inputProduct.getQuantity() == previousOrderedProducts.getQuantity() &&
+                    inputProduct.getUnitPrice() == previousOrderedProducts.getUnitPrice();
+        }
+        return true;
     }
 
     private static boolean validateOrderDiscount(ResponseOrders orderObj, OrderDiscount previousOrderDiscount) {
