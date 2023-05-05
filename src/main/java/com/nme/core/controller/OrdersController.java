@@ -7,6 +7,7 @@ import com.nme.core.model.ResponseOrders;
 import com.nme.core.model.Result;
 import com.nme.core.services.OrdersService;
 import com.nme.core.util.ApplicationConstants;
+import com.nme.core.util.Utility;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,9 +45,15 @@ public class OrdersController {
         return service.getOrderDetailsById(orderId);
     }
 
-    @PostMapping(value = "/updateOrder")
-    public ResponseEntity<Result> updateOrder(@RequestBody ResponseOrders object) {
-        return service.updateOrder(object);
+    @PostMapping(value = "/updateOrder/{id}")
+    public ResponseEntity<Result> updateOrder(@RequestBody OrderDetailsDTO objectDto, @PathVariable(value = "id") long orderId) {
+        try {
+            ResponseOrders order = Utility.transformDtoToResponseObject(objectDto, orderId);
+            return service.updateOrder(order);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.INTERNAL_SERVER_ERROR.value()).subCode("order.update.failure").exceptionMessage(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping(value = "/createOrder")
