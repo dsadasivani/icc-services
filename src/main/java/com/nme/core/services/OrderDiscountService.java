@@ -16,21 +16,24 @@ public class OrderDiscountService {
     private OrderDiscountRepository repo;
 
     public void saveOrderDiscountDetails(OrderDetailsDTO dto, long orderId) {
+        try {
+            OrderDiscount obj = new OrderDiscount();
+            obj.setOrderId(orderId);
+            if (dto.getTradeDiscount() != null && dto.getTradeDiscount().equalsIgnoreCase("true")) {
+                obj.setTradeDiscount("Y");
+                obj.setTradeDiscountValue(Long.parseLong(dto.getTradeDiscountValue()));
+            } else
+                obj.setTradeDiscount("N");
+            if (dto.getCashDiscount() != null && dto.getCashDiscount().equalsIgnoreCase("true")) {
+                obj.setCashDiscount("Y");
+                obj.setCashDiscountValue(Long.parseLong(dto.getCashDiscountValue()));
+            } else
+                obj.setCashDiscount("N");
 
-        OrderDiscount obj = new OrderDiscount();
-        obj.setOrderId(orderId);
-        if (dto.getTradeDiscount() != null && dto.getTradeDiscount().equalsIgnoreCase("true")) {
-            obj.setTradeDiscount("Y");
-            obj.setTradeDiscountValue(Long.parseLong(dto.getTradeDiscountValue()));
-        } else
-            obj.setTradeDiscount("N");
-        if (dto.getCashDiscount() != null && dto.getCashDiscount().equalsIgnoreCase("true")) {
-            obj.setCashDiscount("Y");
-            obj.setCashDiscountValue(Long.parseLong(dto.getCashDiscountValue()));
-        } else
-            obj.setCashDiscount("N");
-
-        repo.save(obj);
+            repo.save(obj);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     public List<OrderDiscount> getOrderDiscountDetailsByOrderId(long orderId) {

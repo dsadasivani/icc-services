@@ -31,4 +31,5 @@ public class OrderDetailsDTO {
     private ProductsDto product1;
     private ProductsDto product2;
     private ProductsDto product3;
+    private String orderSentDate;
 }

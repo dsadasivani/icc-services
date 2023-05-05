@@ -16,14 +16,18 @@ public class CustomerDetailsService {
     private CustomerDetailsRepository repo;
 
     public CustomerDetails saveCustomerDetails(OrderDetailsDTO dto) {
-        CustomerDetails obj = new CustomerDetails();
-        obj.setCompanyName(dto.getCompanyName());
-        obj.setAddress(dto.getAddress());
-        obj.setAddress2(dto.getAddress2());
-        obj.setGstin(dto.getGstin());
-        obj.setPhoneNumber(dto.getPhoneNumber());
+        try {
+            CustomerDetails obj = new CustomerDetails();
+            obj.setCompanyName(dto.getCompanyName());
+            obj.setAddress(dto.getAddress());
+            obj.setAddress2(dto.getAddress2());
+            obj.setGstin(dto.getGstin());
+            obj.setPhoneNumber(dto.getPhoneNumber());
 
-        return repo.save(obj);
+            return repo.save(obj);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     public int updateCustomerDetails(ResponseOrders input, long customerId) {
