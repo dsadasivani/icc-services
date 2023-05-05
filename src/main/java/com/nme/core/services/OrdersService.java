@@ -22,12 +22,10 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.nme.core.util.ApplicationConstants.ACTIVE_FLAG_N;
-import static com.nme.core.util.ApplicationConstants.ACTIVE_FLAG_Y;
+import static com.nme.core.util.ApplicationConstants.*;
 
 @Service
 public class OrdersService {
@@ -341,9 +339,7 @@ public class OrdersService {
                 obj.setDueDate(orderDto.getDueDate());
             obj.setConsumerId(customerId);
             if (orderDto.getInvoiceDate() != null && orderDto.getInvoiceDate().length() > 0) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                Date parsedDate = dateFormat.parse(orderDto.getInvoiceDate().concat(" 09:00:00"));
-                Timestamp invoiceDate = new java.sql.Timestamp(parsedDate.getTime());
+                Timestamp invoiceDate = Utility.getTimestamp(orderDto.getInvoiceDate(), TIMESTAMP_PATTERN1, true);
                 obj.setInvoiceDate(invoiceDate);
             } else {
                 obj.setInvoiceDate(new Timestamp(System.currentTimeMillis()));
