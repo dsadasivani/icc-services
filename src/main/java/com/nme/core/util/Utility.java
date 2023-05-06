@@ -47,8 +47,8 @@ public class Utility {
         order.setGstin(dto.getGstin());
         order.setTradeDiscount(dto.getTradeDiscount() == "true" ? "Y" : "N");
         order.setCashDiscount(dto.getCashDiscount() == "true" ? "Y" : "N");
-        order.setTradeDiscountValue(Long.parseLong(dto.getTradeDiscountValue()));
-        order.setCashDiscountValue(Long.parseLong(dto.getCashDiscountValue()));
+        order.setTradeDiscountValue(dto.getTradeDiscount() == "true" ? Long.parseLong(dto.getTradeDiscountValue()) : 0);
+        order.setCashDiscountValue(dto.getCashDiscount() == "true" ? Long.parseLong(dto.getCashDiscountValue()) : 0);
         setTaxFields(dto, order);
         setProducts(dto, order);
         return order;
