@@ -17,7 +17,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     @Modifying
     @Query("update Orders o set o.dueDate = ?1, o.fobPoint = ?2, o.invoiceDate = ?3, o.invoiceNumber = ?4, o.orderSentVia = ?5, o.salesPersonName = ?6, o.terms = ?7 " +
             "where o.orderId = ?8")
-    int updateOrder(String dueDate, String fobPoint, Timestamp invoiceDate, long invoiceNumber, String orderSentVia, String salesPersonName, String terms, long orderId);
+    int updateOrder(String dueDate, String fobPoint, Timestamp invoiceDate, long invoiceNumber, long orderSentVia, String salesPersonName, String terms, long orderId);
 
     @Transactional
     @Modifying

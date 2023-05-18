@@ -65,7 +65,7 @@ public class GenerateInvoicePDF {
         addOrderDetails(document, List.of(
                 new OrderPOJO(responseOrders.getSalesPersonName(), "",
                         getFormattedDate(responseOrders.getInvoiceDate(), true),
-                        responseOrders.getOrderSentVia(), responseOrders.getFobPoint(), responseOrders.getTerms().toUpperCase(), responseOrders.getDueDate())
+                        String.valueOf(responseOrders.getOrderSentVia()), responseOrders.getFobPoint(), responseOrders.getTerms().toUpperCase(), responseOrders.getDueDate())
         ));
         document.add(new Paragraph("Invoice Details:").setBold().setFontSize(7f));
         List<InvoicePOJO> articleList = new ArrayList<>();

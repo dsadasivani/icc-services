@@ -16,7 +16,7 @@ public class ResponseOrders {
     private Timestamp invoiceDate;
     private String salesPersonName;
     private Timestamp orderSentDate;
-    private String orderSentVia;
+    private long orderSentVia;
     private String fobPoint;
     private String terms;
     private String dueDate;

@@ -1,6 +1,7 @@
 package com.nme.core.util;
 
 import com.nme.core.dto.OrderDetailsDTO;
+import com.nme.core.entity.TransportDetails;
 import com.nme.core.model.ResponseOrders;
 
 import java.sql.Timestamp;
@@ -29,14 +30,14 @@ public class Utility {
         return invoiceDate;
     }
 
-    public static ResponseOrders transformDtoToResponseObject(OrderDetailsDTO dto, long orderId) throws ParseException {
+    public static ResponseOrders transformDtoToResponseObject(OrderDetailsDTO dto, long orderId, TransportDetails details) throws ParseException {
         ResponseOrders order = new ResponseOrders();
         order.setOrderId(orderId);
         order.setInvoiceNumber(Long.parseLong(dto.getInvoiceNumber()));
         order.setInvoiceDate(getTimestamp(dto.getInvoiceDate(), TIMESTAMP_PATTERN2, false));
         order.setSalesPersonName(dto.getSalesPersonName());
         order.setOrderSentDate(getTimestamp(dto.getOrderSentDate(), TIMESTAMP_PATTERN2, false));
-        order.setOrderSentVia(dto.getTransport());
+        order.setOrderSentVia((dto.getTransport().equalsIgnoreCase("OTHERS")) ? details.getTransportId() : Long.parseLong(dto.getTransport()));
         order.setFobPoint(dto.getFobPoint());
         order.setTerms(dto.getTerms());
         order.setDueDate(dto.getDueDate());
