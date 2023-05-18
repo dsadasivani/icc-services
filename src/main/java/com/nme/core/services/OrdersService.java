@@ -370,4 +370,8 @@ public class OrdersService {
             return new ResponseEntity<>(Result.builder().resultCode(HttpStatus.BAD_REQUEST.value()).subCode("order.delete.failure").data("Order deletion failed with order ID : " + orderId).build(), HttpStatus.BAD_REQUEST);
     }
 
+    public List<Long> getInvoiceNumbers() {
+        return repo.findDistinctInvoiceNumbersLatestFirst();
+    }
+
 }
