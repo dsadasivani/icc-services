@@ -3,9 +3,11 @@ package com.nme.core.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nme.core.dto.OrderDetailsDTO;
+import com.nme.core.entity.TransportDetails;
 import com.nme.core.model.ResponseOrders;
 import com.nme.core.model.Result;
 import com.nme.core.services.OrdersService;
+import com.nme.core.services.TransportDetailsService;
 import com.nme.core.util.ApplicationConstants;
 import com.nme.core.util.Utility;
 import org.apache.logging.log4j.Level;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.nme.core.util.ApplicationConstants.ACTIVE_FLAG_Y;
+
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class OrdersController {
@@ -26,6 +30,9 @@ public class OrdersController {
 
     @Autowired
     private OrdersService service;
+
+    @Autowired
+    private TransportDetailsService transportDetailsService;
 
     @GetMapping(value = "/")
     public ResponseEntity<Object> testApiCall() throws JsonProcessingException {
@@ -48,7 +55,14 @@ public class OrdersController {
     @PostMapping(value = "/updateOrder/{id}")
     public ResponseEntity<Result> updateOrder(@RequestBody OrderDetailsDTO objectDto, @PathVariable(value = "id") long orderId) {
         try {
-            ResponseOrders order = Utility.transformDtoToResponseObject(objectDto, orderId);
+            TransportDetails transportDetails = new TransportDetails();
+            if (objectDto.getTransport().equalsIgnoreCase("OTHERS")) {
+                TransportDetails obj = new TransportDetails();
+                obj.setTransportName(objectDto.getOtherTransport());
+                obj.setActiveFlag(ACTIVE_FLAG_Y);
+                transportDetails = transportDetailsService.saveTransport(obj);
+            }
+            ResponseOrders order = Utility.transformDtoToResponseObject(objectDto, orderId, transportDetails);
             return service.updateOrder(order);
         } catch (Exception e) {
             e.printStackTrace();

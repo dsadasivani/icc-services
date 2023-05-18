@@ -56,6 +56,9 @@ public class OrdersService {
     @Autowired
     private PlatformTransactionManager transactionManager;
 
+    @Autowired
+    private TransportDetailsService transportDetailsService;
+
     public List<ResponseOrders> getOrders(int offset, int numberOfRecords) {
         List<ResponseOrders> responseOrders = new ArrayList<>();
         Pageable pageable = PageRequest.of(offset, numberOfRecords);
@@ -291,7 +294,7 @@ public class OrdersService {
                 Utility.handleNull(orderObj.getFobPoint()).equals(Utility.handleNull(previousOrder.getFobPoint())) &&
                 orderObj.getInvoiceDate().equals(previousOrder.getInvoiceDate()) &&
                 orderObj.getInvoiceNumber() == previousOrder.getInvoiceNumber() &&
-                Utility.handleNull(orderObj.getOrderSentVia()).equals(Utility.handleNull(previousOrder.getOrderSentVia())) &&
+                orderObj.getOrderSentVia() == previousOrder.getOrderSentVia() &&
                 Utility.handleNull(orderObj.getSalesPersonName()).equals(Utility.handleNull(previousOrder.getSalesPersonName())) &&
                 Utility.handleNull(orderObj.getTerms()).equals(Utility.handleNull(previousOrder.getTerms()));
     }
@@ -327,11 +330,19 @@ public class OrdersService {
 
     private Orders saveOrderObject(OrderDetailsDTO orderDto, long customerId) throws ParseException {
         try {
+            TransportDetails transportDetails = new TransportDetails();
+            if (orderDto.getTransport().equalsIgnoreCase("OTHERS")) {
+                TransportDetails obj = new TransportDetails();
+                obj.setTransportName(orderDto.getOtherTransport());
+                obj.setActiveFlag(ACTIVE_FLAG_Y);
+                transportDetails = transportDetailsService.saveTransport(obj);
+            }
+
             Orders obj = new Orders();
             obj.setInvoiceNumber(Long.parseLong(orderDto.getInvoiceNumber()));
             obj.setSalesPersonName(orderDto.getSalesPersonName());
             obj.setOrderSentDate(new Timestamp(System.currentTimeMillis()));
-            obj.setOrderSentVia((orderDto.getTransport().equalsIgnoreCase("OTHERS")) ? orderDto.getOtherTransport() : orderDto.getTransport());
+            obj.setOrderSentVia((orderDto.getTransport().equalsIgnoreCase("OTHERS")) ? transportDetails.getTransportId() : Long.parseLong(orderDto.getTransport()));
             obj.setFobPoint(orderDto.getFobPoint());
             obj.setTerms(orderDto.getTerms());
             obj.setActiveFlag(ACTIVE_FLAG_Y);
