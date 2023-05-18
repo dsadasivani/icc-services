@@ -28,4 +28,6 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     Page<Orders> findByActiveFlagOrderByOrderIdDesc(String activeFlag, Pageable pageable);
 
+    @Query(value = "select distinct invoice_number from icc_orders order by invoice_number desc", nativeQuery = true)
+    public List<Long> findDistinctInvoiceNumbersLatestFirst();
 }
