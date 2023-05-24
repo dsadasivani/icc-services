@@ -91,4 +91,14 @@ public class OrdersController {
     public List<Long> getInvoiceNumbers() {
         return service.getInvoiceNumbers();
     }
+
+    @GetMapping(value = "/searchOrders")
+    public List<ResponseOrders> searchOrders(@RequestParam(value = "searchInput", defaultValue = "") String searchInput,
+                                             @RequestParam(value = "agentSearch", required = false) boolean agentSearch,
+                                             @RequestParam(value = "companySearch", required = false) boolean companySearch,
+                                             @RequestParam(value = "addressSearch", required = false) boolean addressSearch,
+                                             @RequestParam(value = "phoneNumberSearch", required = false) boolean phoneNumberSearch) {
+        logger.info("searchOrders() : searchInput -->{}", searchInput);
+        return service.filterOrder(searchInput, agentSearch, companySearch, addressSearch, phoneNumberSearch);
+    }
 }
