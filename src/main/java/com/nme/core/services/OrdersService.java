@@ -374,4 +374,38 @@ public class OrdersService {
         return repo.findDistinctInvoiceNumbersLatestFirst();
     }
 
+    public List<ResponseOrders> filterOrder(String searchInput, boolean agentSearch, boolean companySearch, boolean addressSearch, boolean phoneNumberSearch) {
+        logger.info("filterOrder() ==> START");
+        List<Orders> orders = null;
+        List<ResponseOrders> responseOrders = new ArrayList<>();
+        if (searchInput.length() > 0) {
+            if (agentSearch) {
+                logger.info("filterOrder() ==> Agent Search on input : {}", searchInput);
+                orders = repo.filterOrdersBySalesPerson(searchInput);
+            }
+            if (companySearch) {
+                logger.info("filterOrder() ==> Company Name Search on input : {}", searchInput);
+                orders = repo.filterOrdersByCompanyName(searchInput);
+            }
+            if (addressSearch) {
+                logger.info("filterOrder() ==> Address Search on input : {}", searchInput);
+                orders = repo.filterOrdersByAddress(searchInput);
+            }
+            if (phoneNumberSearch) {
+                logger.info("filterOrder() ==> Phone Number Search on input : {}", searchInput);
+                orders = repo.filterOrdersByPhoneNumber(searchInput);
+            }
+            if (orders == null) {
+                logger.info("filterOrder() ==> Search on input : {}", searchInput);
+                orders = repo.filterOrders(searchInput);
+            }
+            logger.info("Fetched orders count : {}", orders.size());
+            for (Orders order : orders) {
+                responseOrders.add(generateResponseOrderObject(order));
+            }
+        }
+        logger.info("filterOrder() ==> END");
+        return responseOrders;
+    }
 }
+
