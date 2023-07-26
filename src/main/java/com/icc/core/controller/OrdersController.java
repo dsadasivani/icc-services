@@ -34,7 +34,7 @@ public class OrdersController {
     @Autowired
     private TransportDetailsService transportDetailsService;
 
-    @GetMapping(value = "/")
+    @GetMapping(value = "/status")
     public ResponseEntity<Object> testApiCall() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         return new ResponseEntity<Object>(mapper.readTree("{\"status\": \"HealthCheck Success\"}"), HttpStatus.OK);
