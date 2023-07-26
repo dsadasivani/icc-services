@@ -24,6 +24,7 @@ import java.util.List;
 import static com.icc.core.util.ApplicationConstants.ACTIVE_FLAG_Y;
 
 @RestController
+@RequestMapping("/api/v1")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class OrdersController {
     private static final Logger logger = LogManager.getLogger(OrdersController.class);
