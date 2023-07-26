@@ -1,6 +1,7 @@
 package com.icc.core.repo;
 
 import com.icc.core.entity.Orders;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +9,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import jakarta.transaction.*;
 import java.sql.Timestamp;
 import java.util.List;
 
