@@ -6,24 +6,15 @@ import com.icc.core.security.model.RegisterRequest;
 import com.icc.core.security.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-//@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
     private final AuthenticationService service;
-
-//    @GetMapping(value = "/status")
-//    public ResponseEntity<Object> testApiCall() throws JsonProcessingException {
-//        ObjectMapper mapper = new ObjectMapper();
-//        return new ResponseEntity<Object>(mapper.readTree("{\"status\": \"HealthCheck Success\"}"), HttpStatus.OK);
-//    }
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
