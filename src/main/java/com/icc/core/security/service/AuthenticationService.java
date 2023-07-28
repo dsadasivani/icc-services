@@ -2,6 +2,7 @@ package com.icc.core.security.service;
 
 import com.icc.core.security.model.AuthenticateRequest;
 import com.icc.core.security.model.AuthenticationResponse;
+import com.icc.core.security.model.CustomResponse;
 import com.icc.core.security.model.RegisterRequest;
 import com.icc.core.security.model.user.Role;
 import com.icc.core.security.model.user.User;
@@ -54,15 +55,7 @@ public class AuthenticationService {
 
     public ResponseEntity<AuthenticationResponse> authenticate(AuthenticateRequest request) {
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()
-                    )
-            );
-            var user = repository.findByEmail(request.getEmail())
-                    .orElseThrow();
-            var jwtToken = jwtService.generateToken(user);
+            String jwtToken = authenticateUser(request);
             return ResponseEntity.ok(AuthenticationResponse.builder()
                     .token(jwtToken)
                     .build());
@@ -72,5 +65,31 @@ public class AuthenticationService {
                     .build(), HttpStatus.NOT_FOUND);
         }
 
+    }
+
+    private String authenticateUser(AuthenticateRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        var user = repository.findByEmail(request.getEmail())
+                .orElseThrow();
+        return jwtService.generateToken(user);
+    }
+
+    public ResponseEntity<CustomResponse> profileUpdate(RegisterRequest request) {
+        try {
+            int updateCount = repository.updateUserDetails(request.getFirstName(), request.getLastName(), passwordEncoder.encode(request.getPassword()), request.getEmail());
+            if (updateCount > 0) {
+                AuthenticateRequest authenticateRequest = new AuthenticateRequest(request.getEmail(), request.getPassword());
+                String jwtToken = authenticateUser(authenticateRequest);
+                return ResponseEntity.ok(CustomResponse.builder().status("SUCCESS").token(jwtToken).build());
+            }
+            return new ResponseEntity<>(CustomResponse.builder().status("FAILURE").errorMsg("Issue while updating user details").build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return new ResponseEntity<>(CustomResponse.builder().status("ERROR").errorMsg(e.getMessage()).build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
