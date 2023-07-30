@@ -11,6 +11,7 @@ pipeline {
         }
         stage('Build') {
             steps {
+                bat 'java --version'
                 // Build your Spring Boot application using Maven
                 bat 'mvn clean package spring-boot:repackage'
             }
