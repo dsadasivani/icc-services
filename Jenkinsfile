@@ -11,7 +11,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                bat 'java --version'
+                sh 'java --version'
                 // Build your Spring Boot application using Maven
                 bat 'mvn -B package -DskipTests --file pom.xml'
             }
@@ -20,8 +20,8 @@ pipeline {
             steps {
                 // Deploy the application to your local Windows system
                 // For example, copying the JAR to a directory
-                bat 'cp target/icc-services-1.0-SNAPSHOT.jar /home/crazy7/icc-artifacts/dev/icc-service'
-                bat 'java -jar -Dspring.profiles.active=dev /home/crazy7/icc-artifacts/dev/icc-service/icc-services-1.0-SNAPSHOT.jar'
+                sh 'cp target/icc-services-1.0-SNAPSHOT.jar /home/crazy7/icc-artifacts/dev/icc-service'
+                sh 'java -jar -Dspring.profiles.active=dev /home/crazy7/icc-artifacts/dev/icc-service/icc-services-1.0-SNAPSHOT.jar'
                 // Or bat 'xcopy /Y /Q target\\your-spring-boot-app.jar C:\\path\\to\\deploy' // If you want to overwrite existing files
             }
         }
