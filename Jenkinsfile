@@ -20,8 +20,8 @@ pipeline {
             steps {
                 // Deploy the application to your local Windows system
                 // For example, copying the JAR to a directory
-                bat 'xcopy /Y /Q target\\icc-services-1.0-SNAPSHOT.jar C:\\Dilip\\deployment-artifacts\\icc-services'
-                bat 'java -jar -Dspring.profiles.active=local C:\\Dilip\\deployment-artifacts\\icc-services\\icc-services-1.0-SNAPSHOT.jar'
+                bat 'cp target/icc-services-1.0-SNAPSHOT.jar /home/crazy7/icc-artifacts/dev/icc-service'
+                bat 'java -jar -Dspring.profiles.active=dev /home/crazy7/icc-artifacts/dev/icc-service/icc-services-1.0-SNAPSHOT.jar'
                 // Or bat 'xcopy /Y /Q target\\your-spring-boot-app.jar C:\\path\\to\\deploy' // If you want to overwrite existing files
             }
         }
