@@ -13,7 +13,7 @@ pipeline {
             steps {
                 bat 'java --version'
                 // Build your Spring Boot application using Maven
-                bat 'mvn clean package spring-boot:repackage'
+                bat 'mvn -B package -DskipTests --file pom.xml'
             }
         }
         stage('Deploy') {
