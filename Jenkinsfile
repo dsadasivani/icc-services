@@ -16,7 +16,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                // sh 'cp target/icc-services-1.0-SNAPSHOT.jar ${WORKSPACE}/jars/icc-service'
+                sh 'cp target/icc-services-1.0-SNAPSHOT.jar /home/crazy7/icc-artifacts/dev/icc-service'
                 // sh 'java -jar -Dspring.profiles.active=dev target/icc-services-1.0-SNAPSHOT.jar'
                 
                 // sh 'screen -dmS my_screen_session bash -c "java -jar -Dspring.profiles.active=dev target/icc-services-1.0-SNAPSHOT.jar"'
@@ -25,9 +25,9 @@ pipeline {
                 // script {
                 //     def appProcess = "nohup java -jar -Dspring.profiles.active=dev target/icc-services-1.0-SNAPSHOT.jar".execute()
                 //     appProcess.waitFor()
-                // }
-                sh 'sudo docker build -t my-app .'
-                sh 'sudo docker run -d -p 5000:5000 my-app'
+                // // }
+                // sh 'sudo docker build -t my-app .'
+                // sh 'sudo docker run -d -p 5000:5000 my-app'
             }
         }
     }
