@@ -9,9 +9,11 @@ pipeline {
         }
         stage('Build') {
             steps {
-                deleteDir()
-                sh './mvnw --version' // Display Maven Wrapper version and Maven version
-                sh './mvnw clean package -DskipTests'
+                dir('icc-services') {
+                    deleteDir()
+                    sh './mvnw --version' // Display Maven Wrapper version and Maven version
+                    sh './mvnw clean package -DskipTests'
+                }     
             }
         }
         stage('Deploy') {
