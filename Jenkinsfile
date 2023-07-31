@@ -11,8 +11,8 @@ pipeline {
             steps {
                 dir('icc-services') {
                     deleteDir()
-                    sh './mvnw --version' // Display Maven Wrapper version and Maven version
-                    sh './mvnw clean package -DskipTests'
+                    sh 'mvn -B package -Dmaven.resources.plugin.version=3.3.1 -Dmaven.compiler.plugin.version=3.11.0 -DskipTests --file pom.xml' // Display Maven Wrapper version and Maven version
+                    // sh './mvnw clean package -DskipTests'
                 }     
             }
         }
