@@ -28,9 +28,10 @@ pipeline {
             steps {
                 script {
                     def folderName = env.FOLDER_NAME
-                    
+                    sh "echo Using folder: ${folderName}"
+                    sh "cp target/icc-services-1.0-SNAPSHOT.jar ./${folderName}/"
                 }
-                sh 'cp target/icc-services-1.0-SNAPSHOT.jar ./${folderName}/'
+                
                 // sh 'java -jar -Dspring.profiles.active=dev target/icc-services-1.0-SNAPSHOT.jar'
                 
                 // sh 'screen -dmS my_screen_session bash -c "java -jar -Dspring.profiles.active=dev target/icc-services-1.0-SNAPSHOT.jar"'
