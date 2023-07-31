@@ -11,9 +11,11 @@ pipeline {
         }
         stage('Build') {
             steps {
+                deleteDir()
                 sh 'java --version'
                 // Build your Spring Boot application using Maven
-                sh 'mvn clean'
+                sh 'mvn org.apache.maven.plugins:maven-resources-plugin:3.3.1:resources'
+                sh 'mvn org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile'
                 sh 'mvn -B package -Dmaven.resources.plugin.version=3.3.1 -Dmaven.compiler.plugin.version=3.11.0 -DskipTests --file pom.xml'
             }
         }
