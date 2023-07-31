@@ -16,8 +16,8 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'cp target/icc-services-1.0-SNAPSHOT.jar /home/crazy7/icc-artifacts/dev/icc-service'
-                sh 'java -jar -Dspring.profiles.active=dev /home/crazy7/icc-artifacts/dev/icc-service/icc-services-1.0-SNAPSHOT.jar'
+                sh 'cp target/icc-services-1.0-SNAPSHOT.jar ${WORKSPACE}/jars/icc-service'
+                sh 'java -jar -Dspring.profiles.active=dev ${WORKSPACE}/jars/icc-service/icc-services-1.0-SNAPSHOT.jar'
             }
         }
     }
