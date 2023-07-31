@@ -10,7 +10,7 @@ pipeline {
         stage('Build') {
             steps {
                 // deleteDir()
-                sh 'mvn -B package -Dmaven.resources.plugin.version=3.3.1 -Dmaven.compiler.plugin.version=3.11.0 -DskipTests --file pom.xml' // Display Maven Wrapper version and Maven version
+                sh 'mvn -B package -DskipTests --file pom.xml' // Display Maven Wrapper version and Maven version
                 // sh './mvnw clean package -DskipTests'    
             }
         }
