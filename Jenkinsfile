@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     def currentDate = new Date().format("yyyy-MM-dd_HH-mm-ss")
-                    def folderName = "folder_${currentDate}"
+                    def folderName = "icc-api_${currentDate}"
                     sh "mkdir ${folderName}"
                     env.FOLDER_NAME = folderName
                 }
