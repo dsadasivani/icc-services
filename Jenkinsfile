@@ -22,8 +22,10 @@ pipeline {
                 // sh 'screen -dmS my_screen_session bash -c "java -jar -Dspring.profiles.active=dev target/icc-services-1.0-SNAPSHOT.jar"'
                 // sh 'screen -ls'
                 // sh 'nohup java -jar -Dspring.profiles.active=dev target/icc-services-1.0-SNAPSHOT.jar > app.log 2>&1 &'
-                def appProcess = "nohup java -jar -Dspring.profiles.active=dev target/icc-services-1.0-SNAPSHOT.jar".execute()
-                appProcess.waitFor()
+                script {
+                    def appProcess = "nohup java -jar -Dspring.profiles.active=dev target/icc-services-1.0-SNAPSHOT.jar".execute()
+                    appProcess.waitFor()
+                }
             }
         }
     }
