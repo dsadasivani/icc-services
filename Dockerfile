@@ -1,6 +1,5 @@
 # Use an official OpenJDK 17 runtime as a base image
-FROM openjdk:17-jre-slim
-
+FROM khipu/openjdk17-alpine
 # Set the working directory inside the container
 WORKDIR /app
 
