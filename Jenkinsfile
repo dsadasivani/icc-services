@@ -9,11 +9,9 @@ pipeline {
         }
         stage('Build') {
             steps {
-                dir('icc-services') {
-                    deleteDir()
-                    sh 'mvn -B package -Dmaven.resources.plugin.version=3.3.1 -Dmaven.compiler.plugin.version=3.11.0 -DskipTests --file pom.xml' // Display Maven Wrapper version and Maven version
-                    // sh './mvnw clean package -DskipTests'
-                }     
+                // deleteDir()
+                sh 'mvn -B package -Dmaven.resources.plugin.version=3.3.1 -Dmaven.compiler.plugin.version=3.11.0 -DskipTests --file pom.xml' // Display Maven Wrapper version and Maven version
+                // sh './mvnw clean package -DskipTests'    
             }
         }
         stage('Deploy') {
