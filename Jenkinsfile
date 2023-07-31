@@ -26,8 +26,8 @@ pipeline {
                 //     def appProcess = "nohup java -jar -Dspring.profiles.active=dev target/icc-services-1.0-SNAPSHOT.jar".execute()
                 //     appProcess.waitFor()
                 // }
-                sh 'docker build -t my-app .'
-                sh 'docker run -d -p 5000:5000 my-app'
+                sh 'sudo docker build -t my-app .'
+                sh 'sudo docker run -d -p 5000:5000 my-app'
             }
         }
     }
