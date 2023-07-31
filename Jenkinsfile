@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/dsadasivani/icc-services.git'
+                git branch:'spring-security-jwt', url: 'https://github.com/dsadasivani/icc-services.git'
             }
         }
         stage('Build') {
