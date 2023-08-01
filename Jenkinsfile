@@ -2,14 +2,13 @@ pipeline {
     agent any
 
     parameters {
-        // Add a parameter of type "Branch"
         gitParameter name: 'BRANCH', type: 'PT_BRANCH', defaultValue: 'master', branchFilter: '.*', sortMode: 'DESCENDING'
     }
     
     stages {
         stage('Checkout') {
             steps {
-                // git branch:${params.BRANCH}, url: 'https://github.com/dsadasivani/icc-services.git'
+                sh "echo Using branch - ${params.BRANCH}"
                 checkout([$class: 'GitSCM',
                           branches: [[name: "${params.BRANCH}"]],
                           doGenerateSubmoduleConfigurations: false,
@@ -28,7 +27,7 @@ pipeline {
                 script {
                     def currentDate = new Date().format("yyyy-MM-dd_HH-mm-ss")
                     def folderName = "icc-api_${currentDate}"
-                    sh "mkdir ${folderName}"
+                    sh "mkdir -p artifacts/${folderName}"
                     env.FOLDER_NAME = folderName
                 }
             }
@@ -38,7 +37,7 @@ pipeline {
                 script {
                     def folderName = env.FOLDER_NAME
                     sh "echo Using folder: ${folderName}"
-                    sh "cp target/icc-services-1.0-SNAPSHOT.jar ./${folderName}/"
+                    sh "cp target/icc-services-1.0-SNAPSHOT.jar artifacts/${folderName}/"
                 }
             }
         }
