@@ -1,30 +1,45 @@
 pipeline {
     agent any
 
+    parameters {
+        gitParameter name: 'BRANCH', type: 'PT_BRANCH', defaultValue: 'master', branchFilter: '.*', sortMode: 'DESCENDING'
+    }
+    
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from GitHub or your version control system
-                // If the repository is local, you can use 'file://' instead of the remote URL
-                git 'https://github.com/dsadasivani/icc-services.git'
+                sh "echo Using branch - ${params.BRANCH}"
+                checkout([$class: 'GitSCM',
+                          branches: [[name: "${params.BRANCH}"]],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [],
+                          submoduleCfg: [],
+                          userRemoteConfigs: [[url: 'https://github.com/dsadasivani/icc-services.git']]])
             }
         }
         stage('Build') {
             steps {
-                bat 'java --version'
-                // Build your Spring Boot application using Maven
-                bat 'mvn -B package -DskipTests --file pom.xml'
+                sh 'mvn -B package -DskipTests --file pom.xml'
+            }
+        }
+        stage('Create Folder') {
+            steps {
+                script {
+                    def currentDate = new Date().format("yyyy-MM-dd_HH-mm-ss")
+                    def folderName = "icc-api_${currentDate}"
+                    sh "mkdir -p artifacts/${folderName}"
+                    env.FOLDER_NAME = folderName
+                }
             }
         }
         stage('Deploy') {
             steps {
-                // Deploy the application to your local Windows system
-                // For example, copying the JAR to a directory
-                bat 'xcopy /Y /Q target\\icc-services-1.0-SNAPSHOT.jar C:\\Dilip\\deployment-artifacts\\icc-services'
-                bat 'java -jar -Dspring.profiles.active=local C:\\Dilip\\deployment-artifacts\\icc-services\\icc-services-1.0-SNAPSHOT.jar'
-                // Or bat 'xcopy /Y /Q target\\your-spring-boot-app.jar C:\\path\\to\\deploy' // If you want to overwrite existing files
+                script {
+                    def folderName = env.FOLDER_NAME
+                    sh "echo Using folder: ${folderName}"
+                    sh "cp target/icc-services-1.0-SNAPSHOT.jar artifacts/${folderName}/"
+                }
             }
         }
     }
 }
-
