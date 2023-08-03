@@ -13,9 +13,10 @@ import lombok.ToString;
 @ToString
 @Entity
 @Table(name = "icc_transport_details")
+@SequenceGenerator(name = "transportDetailsSeq", sequenceName = "icc_transport_details_sequence", allocationSize = 1)
 public class TransportDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transportDetailsSeq")
     private long transportId;
     private String transportName;
     @JsonInclude(JsonInclude.Include.NON_NULL)

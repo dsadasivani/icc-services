@@ -12,10 +12,11 @@ import lombok.ToString;
 @ToString
 @Entity
 @Table(name = "ICC_ORDER_TAX_DETAILS")
+@SequenceGenerator(name = "orderTaxDetailsSeq", sequenceName = "icc_order_tax_details_sequence", allocationSize = 1)
 public class OrderTaxDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orderTaxDetailsSeq")
     private long orderTaxId;
     private long orderId;
     private String csgstFlag;

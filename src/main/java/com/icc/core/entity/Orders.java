@@ -1,15 +1,10 @@
 package com.icc.core.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
 import java.sql.Timestamp;
 
@@ -19,19 +14,11 @@ import java.sql.Timestamp;
 @ToString
 @Entity
 @Table(name = "ICC_ORDERS")
+@SequenceGenerator(name = "ordersSeq", sequenceName = "icc_orders_sequence", allocationSize = 1)
 public class Orders {
 
     @Id
-    @GeneratedValue(generator = "ord-sequence-generator")
-    @GenericGenerator(
-            name = "ord-sequence-generator",
-            strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-            parameters = {
-                    @Parameter(name = "sequence_name", value = "orders_sequence"),
-                    @Parameter(name = "initial_value", value = "1001"),
-                    @Parameter(name = "increment_size", value = "1")
-            }
-    )
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ordersSeq")
     private long orderId;
     private long invoiceNumber;
     private Timestamp invoiceDate;

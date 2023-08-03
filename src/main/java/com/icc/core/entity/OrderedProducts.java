@@ -12,10 +12,11 @@ import lombok.ToString;
 @ToString
 @Entity
 @Table(name = "ICC_ORDERED_PRODUCTS")
+@SequenceGenerator(name = "orderedProductsSeq", sequenceName = "icc_ordered_products_sequence", allocationSize = 1)
 public class OrderedProducts {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orderedProductsSeq")
     private long orderedProductId;
     private long orderId;
     private String productId;

@@ -1,15 +1,10 @@
 package com.icc.core.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
 @Data
 @AllArgsConstructor
@@ -17,19 +12,11 @@ import org.hibernate.annotations.Parameter;
 @ToString
 @Entity
 @Table(name = "ICC_CUSTOMER_DETAILS")
+@SequenceGenerator(name = "customerDetailsSeq", sequenceName = "icc_customer_details_sequence", allocationSize = 1)
 public class CustomerDetails {
 
     @Id
-    @GeneratedValue(generator = "cust-sequence-generator")
-    @GenericGenerator(
-            name = "cust-sequence-generator",
-            strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator",
-            parameters = {
-                    @Parameter(name = "sequence_name", value = "customers_sequence"),
-                    @Parameter(name = "initial_value", value = "101"),
-                    @Parameter(name = "increment_size", value = "1")
-            }
-    )
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customerDetailsSeq")
     private long consumerId;
     private String companyName;
     private String phoneNumber;
