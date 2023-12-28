@@ -16,7 +16,8 @@ public class Util {
 
     public static String formatCurrency(String amount) {
         double amt = Double.parseDouble(amount);
-        NumberFormat inFormat = NumberFormat.getCurrencyInstance(new Locale("en", "in"));
+//        NumberFormat inFormat = NumberFormat.getCurrencyInstance(new Locale("en", "in"));
+        NumberFormat inFormat = NumberFormat.getCurrencyInstance(Locale.of("en", "in"));
         return inFormat.format(amt);
 
     }

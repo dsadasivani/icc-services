@@ -3,12 +3,12 @@ package com.icc.core.security.service;
 import com.icc.core.security.model.user.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,11 +34,11 @@ public class JwtService {
         calendar.add(Calendar.DAY_OF_MONTH, 7);
         return Jwts
                 .builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(calendar.getTime())
-                .signWith(getSigninKey(), SignatureAlgorithm.HS256)
+                .claims().empty().add(extraClaims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(calendar.getTime()).and()
+                .signWith(getSigninKey())
                 .compact();
     }
 
@@ -62,15 +62,19 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         return Jwts
-                .parserBuilder()
-                .setSigningKey(getSigninKey())
+                .parser()
+                .verifyWith(getSecretKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private Key getSigninKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private SecretKey getSecretKey() {
+        return (SecretKey) getSigninKey();
     }
 }
