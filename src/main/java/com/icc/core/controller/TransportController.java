@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icc.core.entity.TransportDetails;
 import com.icc.core.services.TransportDetailsService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,15 +17,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Tag(name = "Transport", description = "Fetch transport details")
 @RestController
 @RequestMapping("/api/v1")
 public class TransportController {
     private static final Logger logger = LogManager.getLogger(TransportController.class);
     @Autowired
     private TransportDetailsService service;
-
+    @Operation(
+            summary = "Fetches Logistics provider details",
+            description = "This endpoint fetches all registered logistic provider details.",
+            tags = { "get" })
     @GetMapping(value = "/getTransportDetails")
-    public JsonNode getAllOrders() {
+    public JsonNode getTransportDetails() {
         logger.info("Fetching Transport details start");
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = null;
