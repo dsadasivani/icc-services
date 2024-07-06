@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  icc-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    environment:
+        SPRING_PROFILE: "${SPRING_PROFILE}"
+        SPRING_DATASOURCE_URL: "${SPRING_DATASOURCE_URL}"
+        SPRING_DATASOURCE_USERNAME: "${SPRING_DATASOURCE_USERNAME}"
+        SPRING_DATASOURCE_PASSWORD: "${SPRING_DATASOURCE_PASSWORD}"
+    depends_on:
+      - postgres-db
+
+  postgres-db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "${SPRING_DATASOURCE_USERNAME}"
+      POSTGRES_PASSWORD: "${SPRING_DATASOURCE_PASSWORD}"
+      POSTGRES_DB: $(basename ${SPRING_DATASOURCE_URL})
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
