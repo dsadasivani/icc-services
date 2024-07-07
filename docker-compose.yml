@@ -17,7 +17,7 @@ services:
   postgres-db:
     image: postgres:15
     ports:
-      - "5432:5432"
+      - "5433:5433"
     environment:
       POSTGRES_USER: "${SPRING_DATASOURCE_USERNAME}"
       POSTGRES_PASSWORD: "${SPRING_DATASOURCE_PASSWORD}"
